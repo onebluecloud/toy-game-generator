@@ -37,7 +37,7 @@
   }
 
   function rankCandidates(catalogs, theme) {
-    const mapping = inferMapping(catalogs.mappings, theme);
+    const mapping = inferMapping(catalogs.mappings, theme, catalogs.playKits);
     const themeWords = tokenize(theme);
     const candidates = [];
     const seen = new Set();
@@ -152,7 +152,7 @@
 
   // ---- Spec building helpers (verbatim from the original generator) -------------
 
-  function inferMapping(mappings, theme) {
+  function inferMapping(mappings, theme, playKits) {
     const scored = mappings.map(mapping => {
       const score = (mapping.keywords || []).reduce((sum, keyword) => {
         return sum + (includesLoose(theme, keyword) ? 1 : 0);
@@ -161,6 +161,16 @@
     }).sort((a, b) => b.score - a.score);
 
     if (scored[0] && scored[0].score > 0) return scored[0].mapping;
+
+    // No keyword match: spread unfamiliar themes across play kits by theme hash so
+    // they don't all collapse to horde-survival. case-deduction is excluded from the
+    // fallback because its clue fiction is fixed English regardless of theme.
+    const eligible = (playKits || [])
+      .map(k => k.id)
+      .filter(id => id !== "case-deduction");
+    const fallbackKit = eligible.length
+      ? eligible[hashNumber(theme) % eligible.length]
+      : "horde-survival";
 
     return {
       keywords: [],
@@ -172,7 +182,7 @@
         special: "burst bonus",
         environment: "arcade arena"
       },
-      preferredPlayKits: ["horde-survival"],
+      preferredPlayKits: [fallbackKit],
       preferredStyleKits: ["pixel-neon"],
       preferredEnemySets: ["glitch-pack"],
       maturityLevel: "casual",

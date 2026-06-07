@@ -157,10 +157,47 @@ ENEMY_SET: {{ENEMY_SET}}
     if (state === STATE_READY || state === STATE_OVER) overlay(); if (state === STATE_LEVEL) levelOverlay(); ctx.restore();
   }
   function background() { const g = ctx.createLinearGradient(0, 0, width, height); g.addColorStop(0, palette.backgroundA); g.addColorStop(1, palette.backgroundB); ctx.fillStyle = g; ctx.fillRect(0, 0, width, height); ctx.fillStyle = "rgba(255,255,255,.055)"; for (let y = 0; y < height; y += 42) ctx.fillRect(0, y, width, 1); }
-  function drawEnemies() { for (const e of enemies) { const def = enemyDef(e.type); ctx.save(); ctx.translate(e.x, e.y); ctx.scale(1 + e.hit * 0.12, 1 + e.hit * 0.12); ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(5, 10, e.r * 1.1, e.r * .7, 0, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = def.color; ctx.beginPath(); ctx.roundRect(-e.r, -e.r, e.r * 2, e.r * 2, e.r * .42); ctx.fill(); ctx.strokeStyle = palette.ink; ctx.lineWidth = e.type === "eliteAlarm" ? 5 : 3; ctx.stroke(); ctx.fillStyle = palette.backgroundA; ctx.font = `900 ${Math.max(14, e.r)}px system-ui`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(def.label, 0, 0); ctx.restore(); } }
+  const SHAPE_LIST = ["circle", "blob", "triangle", "square", "diamond", "hex", "pentagon", "star"];
+  const SHAPE_MAP = { foamling: "circle", drowsy: "blob", jitter: "triangle", mug: "square", charger: "diamond", splitter: "hex", eliteAlarm: "star", bug: "triangle", popup: "square", lagSpike: "diamond", corruptBlock: "hex", firewallElite: "star" };
+  function enemyShape(type) { if (SHAPE_MAP[type]) return SHAPE_MAP[type]; let h = 0; for (const c of String(type)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return SHAPE_LIST[h % SHAPE_LIST.length]; }
+  function shapePath(shape, r) {
+    ctx.beginPath();
+    if (shape === "circle") { ctx.arc(0, 0, r, 0, Math.PI * 2); return; }
+    if (shape === "square") { ctx.roundRect(-r, -r, r * 2, r * 2, r * 0.3); return; }
+    if (shape === "blob") { ctx.roundRect(-r, -r, r * 2, r * 2, r * 0.72); return; }
+    if (shape === "star") { for (let i = 0; i < 10; i++) { const rr = i % 2 ? r * 0.46 : r; const a = -Math.PI / 2 + i * Math.PI / 5; const x = Math.cos(a) * rr, y = Math.sin(a) * rr; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } ctx.closePath(); return; }
+    const n = shape === "triangle" ? 3 : shape === "diamond" ? 4 : shape === "pentagon" ? 5 : shape === "hex" ? 6 : 0;
+    if (!n) { ctx.arc(0, 0, r, 0, Math.PI * 2); return; }
+    const rot = shape === "diamond" ? 0 : -Math.PI / 2;
+    for (let i = 0; i < n; i++) { const a = rot + i * Math.PI * 2 / n; const x = Math.cos(a) * r, y = Math.sin(a) * r; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.closePath();
+  }
+  function drawEnemies() {
+    for (const e of enemies) {
+      const def = enemyDef(e.type); const shape = enemyShape(e.type); const elite = e.type === "eliteAlarm" || /elite/i.test(e.type);
+      ctx.save(); ctx.translate(e.x, e.y); ctx.scale(1 + e.hit * 0.12, 1 + e.hit * 0.12);
+      ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(4, 9, e.r * 1.05, e.r * .65, 0, 0, Math.PI * 2); ctx.fill();
+      shapePath(shape, e.r); ctx.fillStyle = def.color; ctx.fill();
+      ctx.strokeStyle = palette.ink; ctx.lineWidth = elite ? 5 : 3; ctx.stroke();
+      shapePath(shape, e.r * 0.46); ctx.fillStyle = hexAlpha(palette.backgroundA, 0.85); ctx.fill();
+      if (e.hit > 0.05) { shapePath(shape, e.r); ctx.fillStyle = hexAlpha(palette.ink, e.hit * 0.55); ctx.fill(); }
+      ctx.restore();
+    }
+  }
   function drawBullets() { ctx.fillStyle = palette.ink; for (const b of bullets) { ctx.beginPath(); ctx.ellipse(b.x, b.y, b.r * 1.7, b.r, 0, 0, Math.PI * 2); ctx.fill(); } }
   function drawOrbs() { ctx.fillStyle = palette.good; for (const o of xp) { ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fill(); } }
-  function drawPlayer() { ctx.save(); ctx.translate(player.x, player.y); ctx.fillStyle = palette.accent; ctx.beginPath(); ctx.ellipse(0, 0, player.r * .92, player.r * 1.18, -.34, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = palette.ink; ctx.lineWidth = 3; ctx.stroke(); ctx.restore(); }
+  function drawPlayer() {
+    const target = nearestEnemy(); const aim = target ? Math.atan2(target.y - player.y, target.x - player.x) : -Math.PI / 2;
+    ctx.save(); ctx.translate(player.x, player.y);
+    ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(4, 9, player.r * 1.05, player.r * .68, 0, 0, Math.PI * 2); ctx.fill();
+    if (player.invuln > 0) { ctx.fillStyle = hexAlpha(palette.good, .28); ctx.beginPath(); ctx.arc(0, 0, player.r * 1.22, 0, Math.PI * 2); ctx.fill(); }
+    ctx.rotate(aim);
+    ctx.fillStyle = palette.ink; ctx.beginPath(); ctx.roundRect(0, -player.r * .26, player.r * 1.35, player.r * .52, player.r * .26); ctx.fill();
+    ctx.fillStyle = palette.accent; ctx.beginPath(); ctx.arc(0, 0, player.r, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = palette.ink; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = palette.ink; ctx.beginPath(); ctx.arc(player.r * .34, 0, player.r * .17, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
   function drawEffects() { for (const p of particles) { ctx.globalAlpha = Math.max(0, p.life * 2); ctx.fillStyle = p.color; ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size); } ctx.globalAlpha = 1; for (const f of floats) { ctx.globalAlpha = Math.max(0, f.life); ctx.fillStyle = f.color; ctx.font = "900 16px system-ui"; ctx.textAlign = "center"; ctx.fillText(f.text, f.x, f.y); } ctx.globalAlpha = 1; }
   function hud() { if (state === STATE_READY) return; panel(14, 12, 240, 88); text(SPEC.title, 28, 34, 19, palette.ink, "left"); text(`${S.score} ${score}  ${S.best} ${best}`, 28, 62, 13, palette.ink, "left"); bar(28, 84, 190, 8, player.hp / player.maxHp, palette.good); panel(width - 224, 12, 210, 88); text(formatTime(timeLeft), width - 34, 34, 22, timeLeft < 10 ? palette.bad : palette.ink, "right"); text(`${S.level} ${player.level} x${comboMult()} ${combo} ${S.combo}`, width - 34, 62, 13, palette.ink, "right"); bar(width - 204, 84, 170, 8, player.xp / player.xpGoal, palette.accent); }
   function overlay() { ctx.fillStyle = "rgba(0,0,0,.68)"; ctx.fillRect(0, 0, width, height); text(SPEC.title, width / 2, height * .42, 36, palette.ink, "center"); text(SPEC.roles.player + " / " + SPEC.roles.objective, width / 2, height * .42 + 40, 15, palette.ink, "center"); text(state === STATE_OVER ? S.restart : S.start, width / 2, height * .42 + 92, 24, palette.accent, "center"); if (state === STATE_OVER) text(`${S.score} ${score}  ${S.best} ${best}`, width / 2, height * .42 + 128, 15, palette.ink, "center"); }
