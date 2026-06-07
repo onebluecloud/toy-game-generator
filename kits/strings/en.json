@@ -119,7 +119,7 @@
     "locks": "Locks",
     "breach": "Breach"
   },
-  "runner-lane": {},
+  "runner-lane": { "nitro": "NITRO", "near": "NEAR" },
   "tower-defense": {
     "up": "UP"
   },

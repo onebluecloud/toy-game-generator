@@ -119,7 +119,7 @@
     "locks": "锁定",
     "breach": "被突破"
   },
-  "runner-lane": {},
+  "runner-lane": { "nitro": "氮气", "near": "贴身" },
   "tower-defense": {
     "up": "升级"
   },
