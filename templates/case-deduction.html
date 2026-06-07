@@ -288,6 +288,9 @@ SECONDARY_TWIST: trust-pressure
       ctx.lineTo(width, y);
       ctx.stroke();
     }
+    const vig = ctx.createRadialGradient(width / 2, height * 0.45, height * 0.2, width / 2, height * 0.5, height * 0.98);
+    vig.addColorStop(0, "rgba(0,0,0,0)"); vig.addColorStop(1, "rgba(0,0,0,0.5)");
+    ctx.fillStyle = vig; ctx.fillRect(0, 0, width, height);
     ctx.fillStyle = "rgba(33,25,22,0.90)";
     roundRect(width * 0.34, height * 0.16, width * 0.34, height * 0.62, 18, true, true);
     ctx.strokeStyle = "rgba(201,163,91,0.42)";
