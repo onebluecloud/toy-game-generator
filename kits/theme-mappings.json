@@ -206,5 +206,69 @@
     "preferredEnemySets": ["tactic-pack"],
     "maturityLevel": "arcade",
     "coreExperience": "move turn by turn, control space, and contain spreading threats"
+  },
+  {
+    "keywords": ["merge", "2048", "watermelon", "fruit merge", "合成", "合成大西瓜", "数字合并", "西瓜", "合体"],
+    "roles": {
+      "player": "merge planner",
+      "objective": "merge equal tiles into bigger numbers",
+      "threat": "a filling board",
+      "reward": "chain merges",
+      "special": "big-number burst",
+      "environment": "drop board"
+    },
+    "preferredPlayKits": ["merge-drop"],
+    "preferredStyleKits": ["toy-diorama"],
+    "preferredEnemySets": ["clutter-pack"],
+    "maturityLevel": "casual",
+    "coreExperience": "drop tiles, merge equals, and chase a satisfying high-number combo"
+  },
+  {
+    "keywords": ["羊了个羊", "三消", "三牌消", "连连看", "叠叠乐", "tile match", "sheep", "麻将消"],
+    "roles": {
+      "player": "tile sorter",
+      "objective": "clear every tile in threes before the tray fills",
+      "threat": "a filling slot tray",
+      "reward": "triple clears",
+      "special": "tray combo",
+      "environment": "layered tile heap"
+    },
+    "preferredPlayKits": ["tile-match"],
+    "preferredStyleKits": ["toy-diorama"],
+    "preferredEnemySets": ["clutter-pack"],
+    "maturityLevel": "casual",
+    "coreExperience": "tap free tiles into a seven-slot tray and clear triples before it overflows"
+  },
+  {
+    "keywords": ["brick", "breakout", "arkanoid", "paddle", "打砖块", "弹球", "碰碰球", "接球"],
+    "roles": {
+      "player": "paddle pilot",
+      "objective": "break every brick without dropping the ball",
+      "threat": "a falling ball",
+      "reward": "combo breaks",
+      "special": "clear bonus",
+      "environment": "neon brick field"
+    },
+    "preferredPlayKits": ["brick-breaker"],
+    "preferredStyleKits": ["pixel-neon"],
+    "preferredEnemySets": ["glitch-pack"],
+    "maturityLevel": "arcade",
+    "coreExperience": "steer the paddle, keep the ball alive, and clear escalating brick walls"
+  },
+  {
+    "keywords": ["flappy", "flappy bird", "fly", "一键飞", "像素鸟", "小鸟", "飞行", "穿越"],
+    "roles": {
+      "player": "tap flyer",
+      "objective": "fly through as many gaps as possible",
+      "threat": "tight pipe gaps",
+      "reward": "clean passes",
+      "special": "near miss",
+      "environment": "scrolling sky"
+    },
+    "preferredPlayKits": ["flappy-gap"],
+    "preferredStyleKits": ["pixel-neon"],
+    "preferredEnemySets": ["glitch-pack"],
+    "maturityLevel": "arcade",
+    "coreExperience": "one-tap timing through scrolling gaps with a rising score streak"
   }
 ]

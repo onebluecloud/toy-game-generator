@@ -97,5 +97,41 @@
     "template": "grid-tactics.html",
     "requiredMechanics": ["grid-move", "area-control"],
     "baseScore": 10
+  },
+  {
+    "id": "merge-drop",
+    "label": "Merge Drop",
+    "verbs": ["drop tile", "merge equals", "chain", "grow number"],
+    "bestFor": ["merge", "2048", "watermelon", "number", "合成", "数字", "西瓜"],
+    "template": "merge-drop.html",
+    "requiredMechanics": ["merge-grow"],
+    "baseScore": 11
+  },
+  {
+    "id": "tile-match",
+    "label": "Tile Match",
+    "verbs": ["tap tile", "fill tray", "clear three", "unstack"],
+    "bestFor": ["match", "tile", "mahjong", "sheep", "三消", "叠叠", "羊", "连连看"],
+    "template": "tile-match.html",
+    "requiredMechanics": ["tile-tray"],
+    "baseScore": 11
+  },
+  {
+    "id": "brick-breaker",
+    "label": "Brick Breaker",
+    "verbs": ["move paddle", "bounce ball", "break brick"],
+    "bestFor": ["brick", "ball", "paddle", "arcade", "打砖块", "弹球", "街机"],
+    "template": "brick-breaker.html",
+    "requiredMechanics": ["paddle-bounce"],
+    "baseScore": 10
+  },
+  {
+    "id": "flappy-gap",
+    "label": "Flappy Gap",
+    "verbs": ["tap", "flap", "dodge pipe"],
+    "bestFor": ["flappy", "fly", "bird", "dodge", "飞", "鸟", "躲", "像素鸟"],
+    "template": "flappy-gap.html",
+    "requiredMechanics": ["tap-flap"],
+    "baseScore": 10
   }
 ]

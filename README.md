@@ -16,11 +16,11 @@ Type a theme, switch language, generate, play, and download — entirely in your
 
 诚实地讲：它不是"AI 现写游戏代码"。它是一个 **GameSpec + 玩法套件(play kit)+ 模板** 的组合引擎：
 
-- 11 个手写打磨的玩法模板（吸血鬼幸存者式生存、跑酷、塔防、卡组、消除、弹道、节奏、攀爬、放置、战棋、推理）
-- 你的主题词决定**标题、角色、配色、节奏、皮肤**，并从 8640 个候选组合里排序挑出最契合的一个
+- 15 个手写打磨的玩法模板（吸血鬼幸存者式生存、跑酷、塔防、卡组、消除、弹道、节奏、攀爬、放置、战棋、推理、合成 2048、羊了个羊三消、打砖块、一键飞 flappy）
+- 你的主题词决定**标题、角色、配色、节奏、皮肤**，并从 12096 个候选组合里排序挑出最契合的一个
 - 玩法本体是模板提供的、经过验证"能玩"的代码；主题换的是皮和文案，不是从零写规则
 
-So you know exactly what you're getting: this is **not** "AI writes a game from scratch." It's a **GameSpec + play-kit + template** composition engine. Your theme picks the best-fitting combo out of 8640 candidates and drives the title, roles, palette, pacing, and skin. The gameplay itself is hand-built, validated template code.
+So you know exactly what you're getting: this is **not** "AI writes a game from scratch." It's a **GameSpec + play-kit + template** composition engine. Your theme picks the best-fitting combo out of 12096 candidates and drives the title, roles, palette, pacing, and skin. The gameplay itself is hand-built, validated template code.
 
 > 可选的 DeepSeek 模式只用来把自然语言更好地映射到允许的套件 ID，**它不写任何游戏代码**。
 > Optional DeepSeek mode only maps natural language to allowed catalog IDs — it never writes game code.
@@ -66,11 +66,11 @@ npm run validate
 npm run audit
 ```
 
-`validate` 校验单个游戏结构与 spec 一致性；`audit` 从零重新生成全部 11 个套件样例并跑 25 项检查（含 i18n 守卫：模板无 CJK 残留、`html lang` 与 `spec.lang` 一致、陌生主题不退回 coffee/cafe 命名）。
+`validate` 校验单个游戏结构与 spec 一致性；`audit` 从零重新生成全部套件样例并跑 25 项检查（含 i18n 守卫：模板无 CJK 残留、`html lang` 与 `spec.lang` 一致、陌生主题不退回 coffee/cafe 命名）。
 
 ## 玩法套件 / Current Play Kits
 
-`horde-survival` · `runner-lane` · `case-deduction` · `tower-defense` · `deck-builder` · `match-puzzle` · `physics-arc` · `rhythm-tap` · `platform-climb` · `idle-automation` · `grid-tactics`
+`horde-survival` · `runner-lane` · `case-deduction` · `tower-defense` · `deck-builder` · `match-puzzle` · `physics-arc` · `rhythm-tap` · `platform-climb` · `idle-automation` · `grid-tactics` · `merge-drop` · `tile-match` · `brick-breaker` · `flappy-gap`
 
 ## 已知边界 / Known boundary
 

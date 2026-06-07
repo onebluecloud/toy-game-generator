@@ -122,5 +122,9 @@
   "runner-lane": {},
   "tower-defense": {
     "up": "升级"
-  }
+  },
+  "merge-drop": {},
+  "tile-match": {},
+  "brick-breaker": {},
+  "flappy-gap": {}
 }

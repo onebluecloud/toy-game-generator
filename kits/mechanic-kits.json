@@ -145,5 +145,33 @@
     "bestFor": ["grid-tactics", "contain", "围堵", "策略"],
     "summary": "Tiles can be sealed or controlled to slow enemy spread.",
     "baseScore": 9
+  },
+  {
+    "id": "merge-grow",
+    "label": "Merge Grow",
+    "bestFor": ["merge-drop", "merge", "2048", "合成", "数字"],
+    "summary": "Dropping equal tiles merges them into a higher value with chain scoring.",
+    "baseScore": 10
+  },
+  {
+    "id": "tile-tray",
+    "label": "Tile Tray",
+    "bestFor": ["tile-match", "match", "三消", "羊了个羊"],
+    "summary": "Tap stacked tiles into a seven-slot tray; three of a kind clear.",
+    "baseScore": 10
+  },
+  {
+    "id": "paddle-bounce",
+    "label": "Paddle Bounce",
+    "bestFor": ["brick-breaker", "arcade", "打砖块", "弹球"],
+    "summary": "A pointer paddle bounces a ball to break brick rows.",
+    "baseScore": 10
+  },
+  {
+    "id": "tap-flap",
+    "label": "Tap Flap",
+    "bestFor": ["flappy-gap", "flappy", "飞", "鸟"],
+    "summary": "Tap to flap a flyer through scrolling pipe gaps.",
+    "baseScore": 10
   }
 ]

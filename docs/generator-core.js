@@ -238,7 +238,11 @@
       "rhythm-tap": "Beat",
       "platform-climb": "Climb",
       "idle-automation": "Loop",
-      "grid-tactics": "Grid"
+      "grid-tactics": "Grid",
+      "merge-drop": "Merge",
+      "tile-match": "Tiles",
+      "brick-breaker": "Bricks",
+      "flappy-gap": "Flap"
     };
     const zh = {
       "horde-survival": "突围",
@@ -251,7 +255,11 @@
       "rhythm-tap": "节拍",
       "platform-climb": "攀登",
       "idle-automation": "循环",
-      "grid-tactics": "棋局"
+      "grid-tactics": "棋局",
+      "merge-drop": "合成",
+      "tile-match": "三消",
+      "brick-breaker": "弹球",
+      "flappy-gap": "起飞"
     };
     const table = lang === "zh" ? zh : en;
     return table[playKitId] || (lang === "zh" ? "游戏" : "Game");
@@ -279,7 +287,11 @@
       "rhythm-tap": ["conductor", "hit the " + lowerTopic + " beat", "miss pressure", "streak value", "perfect timing", "rhythm lane"],
       "platform-climb": ["climber", "rise through " + lowerTopic + " platforms", "bad landings", "height score", "recovery jump", "vertical field"],
       "idle-automation": ["planner", "grow the " + lowerTopic + " loop", "bottlenecks", "cash flow", "upgrade cycle", "production line"],
-      "grid-tactics": ["tactician", "contain the " + lowerTopic + " grid", "moving threats", "locked cells", "area control", "tactical board"]
+      "grid-tactics": ["tactician", "contain the " + lowerTopic + " grid", "moving threats", "locked cells", "area control", "tactical board"],
+      "merge-drop": ["merger", "merge the " + lowerTopic + " stack", "rising clutter", "chain merges", "big-number burst", "drop board"],
+      "tile-match": ["sorter", "clear the " + lowerTopic + " tiles in threes", "a filling tray", "triple clears", "tray combo", "tile heap"],
+      "brick-breaker": ["paddler", "break the " + lowerTopic + " wall", "a falling ball", "combo breaks", "clear bonus", "brick field"],
+      "flappy-gap": ["flyer", "fly the " + lowerTopic + " gauntlet", "tight pipes", "clean passes", "near miss", "scrolling sky"]
     };
     const zh = {
       "horde-survival": ["操作员", "顶住" + topic + "涌潮", "围压", "动能补给", "升级爆发", "压力场"],
@@ -292,7 +304,11 @@
       "rhythm-tap": ["指挥者", "踩准" + topic + "节拍", "漏拍压力", "连击价值", "完美时机", "节奏轨道"],
       "platform-climb": ["攀登者", "穿越" + topic + "平台上升", "落脚风险", "高度分数", "恢复跳跃", "垂直场"],
       "idle-automation": ["规划师", "扩大" + topic + "循环", "瓶颈", "现金流", "升级周期", "生产线"],
-      "grid-tactics": ["战术员", "控制" + topic + "棋局", "移动威胁", "锁定格", "区域控制", "战术棋盘"]
+      "grid-tactics": ["战术员", "控制" + topic + "棋局", "移动威胁", "锁定格", "区域控制", "战术棋盘"],
+      "merge-drop": ["合成师", "合并" + topic + "方块", "堆叠压力", "连锁合并", "爆数时刻", "掉落台"],
+      "tile-match": ["理牌人", "三连消掉" + topic + "牌", "渐满的卡槽", "三连消除", "清槽连击", "牌堆"],
+      "brick-breaker": ["挡板手", "击碎" + topic + "砖墙", "下坠的球", "连击破砖", "通关奖励", "砖场"],
+      "flappy-gap": ["飞行者", "穿过" + topic + "缝隙", "逼仄管道", "干净通过", "擦身而过", "卷动天空"]
     };
     const templates = lang === "zh" ? zh : en;
     const values = templates[candidate.playKit.id] || templates["horde-survival"];

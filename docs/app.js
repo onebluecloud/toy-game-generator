@@ -16,9 +16,9 @@
       fullscreen: "⛶ 全屏试玩", download: "⬇ 下载 HTML", again: "↻ 换个玩法",
       copyLink: "🔗 复制链接", copied: "✓ 链接已复制",
       playHint: "手机端直接在上方触屏游玩；「换个玩法」会切到完全不同的游戏类型。",
-      what: "它是什么：不是「AI 现写代码」，而是 11 套手工打磨的玩法模板 + 你的主题词，从 8640 个组合里挑最契合的一个，换皮换文案换节奏。玩法本体是验证过「能玩」的代码。",
+      what: "它是什么：不是「AI 现写代码」，而是 15 套手工打磨的玩法模板 + 你的主题词，从 12096 个组合里挑最契合的一个，换皮换文案换节奏。玩法本体是验证过「能玩」的代码。",
       placeholder: "输入任意词，比如：深海考古",
-      chips: ["电脑病毒", "赛车", "末日塔防", "算命", "音乐节奏", "宝石消除", "病毒围堵", "弹射救援", "商业谈判", "爬塔跳跃", "工厂自动化"]
+      chips: ["合成大西瓜", "羊了个羊", "打砖块", "flappy 一键飞", "电脑病毒", "赛车", "末日塔防", "算命", "音乐节奏", "宝石消除", "弹射救援", "商业谈判", "爬塔跳跃"]
     },
     en: {
       h1: "Type a word,<br>get a playable game in seconds",
@@ -28,9 +28,9 @@
       fullscreen: "⛶ Fullscreen", download: "⬇ Download HTML", again: "↻ Switch genre",
       copyLink: "🔗 Copy link", copied: "✓ Link copied",
       playHint: "Play right above by touch; \"Switch genre\" jumps to a completely different game type.",
-      what: "What it is: not \"AI writes code\" — it's 11 hand-built play templates + your theme, picking the best fit out of 8640 combos and reskinning title, copy, and pacing. The gameplay itself is validated, playable code.",
+      what: "What it is: not \"AI writes code\" — it's 15 hand-built play templates + your theme, picking the best fit out of 12096 combos and reskinning title, copy, and pacing. The gameplay itself is validated, playable code.",
       placeholder: "Type anything, e.g. deep-sea archaeology",
-      chips: ["computer virus", "street racing", "tower defense", "fortune telling", "music rhythm", "gem match", "containment grid", "slingshot rescue", "business negotiation", "platform climb", "factory automation"]
+      chips: ["watermelon merge", "sheep stack", "brick breaker", "flappy bird", "computer virus", "street racing", "tower defense", "fortune telling", "music rhythm", "gem match", "slingshot rescue", "business negotiation", "platform climb"]
     }
   };
 
