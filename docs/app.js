@@ -14,10 +14,11 @@
       honest: "生成逻辑 100% 跑在你的浏览器里，无后端、不上传任何东西。",
       go: "生成游戏", random: "🎲 随机一个", tryLabel: "试试这些（每个都是不同玩法）：",
       fullscreen: "⛶ 全屏试玩", download: "⬇ 下载 HTML", again: "↻ 换个玩法",
+      copyLink: "🔗 复制链接", copied: "✓ 链接已复制",
       playHint: "手机端直接在上方触屏游玩；「换个玩法」会切到完全不同的游戏类型。",
       what: "它是什么：不是「AI 现写代码」，而是 11 套手工打磨的玩法模板 + 你的主题词，从 8640 个组合里挑最契合的一个，换皮换文案换节奏。玩法本体是验证过「能玩」的代码。",
       placeholder: "输入任意词，比如：深海考古",
-      chips: ["电脑病毒", "赛车", "末日塔防", "算命", "音乐节奏", "宝石消除", "病毒围堵", "弹射救援", "商业谈判"]
+      chips: ["电脑病毒", "赛车", "末日塔防", "算命", "音乐节奏", "宝石消除", "病毒围堵", "弹射救援", "商业谈判", "爬塔跳跃", "工厂自动化"]
     },
     en: {
       h1: "Type a word,<br>get a playable game in seconds",
@@ -25,10 +26,11 @@
       honest: "Generation runs 100% in your browser. No backend, nothing uploaded.",
       go: "Generate", random: "🎲 Random", tryLabel: "Try these (each is a different genre):",
       fullscreen: "⛶ Fullscreen", download: "⬇ Download HTML", again: "↻ Switch genre",
+      copyLink: "🔗 Copy link", copied: "✓ Link copied",
       playHint: "Play right above by touch; \"Switch genre\" jumps to a completely different game type.",
       what: "What it is: not \"AI writes code\" — it's 11 hand-built play templates + your theme, picking the best fit out of 8640 combos and reskinning title, copy, and pacing. The gameplay itself is validated, playable code.",
       placeholder: "Type anything, e.g. deep-sea archaeology",
-      chips: ["computer virus", "street racing", "tower defense", "fortune telling", "music rhythm", "gem match", "containment grid", "slingshot rescue", "business negotiation"]
+      chips: ["computer virus", "street racing", "tower defense", "fortune telling", "music rhythm", "gem match", "containment grid", "slingshot rescue", "business negotiation", "platform climb", "factory automation"]
     }
   };
 
@@ -85,7 +87,30 @@
     gameKit.textContent = spec.playKit;
     frame.srcdoc = html;
     result.hidden = false;
+    try { history.replaceState(null, "", gameHash(theme, lastKit, lang)); } catch (e) {}
     result.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  // Shareable deep link: #t=<theme>&k=<playKit>&l=<lang> opens that exact game.
+  function gameHash(theme, kit, lng) {
+    return "#t=" + encodeURIComponent(theme) + "&k=" + encodeURIComponent(kit) + "&l=" + lng;
+  }
+  function fromHash() {
+    var h = location.hash.replace(/^#/, "");
+    if (!h) return null;
+    var p = {};
+    h.split("&").forEach(function (kv) { var i = kv.indexOf("="); if (i > 0) p[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); });
+    return p.t ? { theme: p.t, kit: p.k, lang: p.l } : null;
+  }
+  // Generate a theme but prefer a specific play kit (used by deep links).
+  function showByKit(theme, kit) {
+    distinctList = rankDistinct(theme);
+    distinctTheme = theme;
+    distinctIdx = 0;
+    for (var i = 0; i < distinctList.length; i++) {
+      if (distinctList[i].playKit.id === kit) { distinctIdx = i; break; }
+    }
+    show(distinctList[distinctIdx], theme);
   }
 
   function generate(theme) {
@@ -140,6 +165,16 @@
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
   });
 
+  $("copylink").addEventListener("click", function () {
+    if (!lastTheme) return;
+    var url = location.href.split("#")[0] + gameHash(lastTheme, lastKit, lang);
+    var btn = $("copylink");
+    var done = function () { btn.textContent = I18N[lang].copied; setTimeout(function () { btn.textContent = I18N[lang].copyLink; }, 1500); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done).catch(function () { window.prompt("", url); });
+    } else { window.prompt("", url); }
+  });
+
   $("lang-zh").addEventListener("click", function () { setLang("zh"); });
   $("lang-en").addEventListener("click", function () { setLang("en"); });
 
@@ -150,5 +185,10 @@
     if (!result.hidden && lastTheme) { distinctList = []; generate(lastTheme); } // re-render in new language
   }
 
-  applyLang();
+  (function init() {
+    var hp = fromHash();
+    if (hp && (hp.lang === "en" || hp.lang === "zh")) lang = hp.lang;
+    applyLang();
+    if (hp && hp.theme) { themeInput.value = hp.theme; showByKit(hp.theme, hp.kit); }
+  })();
 })();

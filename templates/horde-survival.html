@@ -131,7 +131,7 @@ ENEMY_SET: {{ENEMY_SET}}
       if (e.type === "charger" && dist(e.x, e.y, player.x, player.y) < 250 && e.dash <= 0) { e.wind += dt; if (e.wind > 0.45) { const a = Math.atan2(player.y - e.y, player.x - e.x); e.vx = Math.cos(a) * e.speed * 4; e.vy = Math.sin(a) * e.speed * 4; e.dash = 0.42; e.wind = 0; } }
       if (e.dash > 0) { e.x += e.vx * dt; e.y += e.vy * dt; e.dash -= dt; } else { const a = Math.atan2(player.y - e.y, player.x - e.x); e.x += Math.cos(a) * e.speed * dt; e.y += Math.sin(a) * e.speed * dt; }
       e.hit = Math.max(0, e.hit - dt * 5);
-      if (dist(e.x, e.y, player.x, player.y) < e.r + player.r && player.invuln <= 0) { player.hp -= e.type === "eliteAlarm" || e.type === "mug" ? 2 : 1; player.invuln = 0.8; combo = 0; shake = 0.4; flash = 0.5; addFloat("-HP", player.x, player.y - 40, palette.bad); }
+      if (dist(e.x, e.y, player.x, player.y) < e.r + player.r && player.invuln <= 0) { player.hp -= e.type === "eliteAlarm" || e.type === "mug" ? 2 : 1; player.invuln = 0.8; combo = 0; shake = 0.4; flash = 0.5; addFloat("-" + S.hp, player.x, player.y - 40, palette.bad); }
     }
   }
   function updateBullets(dt) {
@@ -172,15 +172,26 @@ ENEMY_SET: {{ENEMY_SET}}
     for (let i = 0; i < n; i++) { const a = rot + i * Math.PI * 2 / n; const x = Math.cos(a) * r, y = Math.sin(a) * r; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
     ctx.closePath();
   }
+  function lighten(hex, t) { const n = parseInt(hex.slice(1), 16); const r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255; const m = v => Math.round(v + (255 - v) * t); return `rgb(${m(r)},${m(g)},${m(b)})`; }
   function drawEnemies() {
     for (const e of enemies) {
       const def = enemyDef(e.type); const shape = enemyShape(e.type); const elite = e.type === "eliteAlarm" || /elite/i.test(e.type);
       ctx.save(); ctx.translate(e.x, e.y); ctx.scale(1 + e.hit * 0.12, 1 + e.hit * 0.12);
-      ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(4, 9, e.r * 1.05, e.r * .65, 0, 0, Math.PI * 2); ctx.fill();
-      shapePath(shape, e.r); ctx.fillStyle = def.color; ctx.fill();
+      ctx.fillStyle = "rgba(0,0,0,.28)"; ctx.beginPath(); ctx.ellipse(4, 10, e.r * 1.05, e.r * .6, 0, 0, Math.PI * 2); ctx.fill();
+      const g = ctx.createRadialGradient(-e.r * .35, -e.r * .4, e.r * .12, 0, 0, e.r * 1.15);
+      g.addColorStop(0, lighten(def.color, .5)); g.addColorStop(.55, def.color); g.addColorStop(1, hexAlpha(def.color, .92));
+      ctx.shadowColor = def.color; ctx.shadowBlur = elite ? 24 : 13;
+      shapePath(shape, e.r); ctx.fillStyle = g; ctx.fill();
+      ctx.shadowBlur = 0;
       ctx.strokeStyle = palette.ink; ctx.lineWidth = elite ? 5 : 3; ctx.stroke();
-      shapePath(shape, e.r * 0.46); ctx.fillStyle = hexAlpha(palette.backgroundA, 0.85); ctx.fill();
-      if (e.hit > 0.05) { shapePath(shape, e.r); ctx.fillStyle = hexAlpha(palette.ink, e.hit * 0.55); ctx.fill(); }
+      const ang = Math.atan2(player.y - e.y, player.x - e.x), ex = Math.cos(ang), ey = Math.sin(ang);
+      const er = Math.max(2.5, e.r * .2), pr = er * .52;
+      for (const s of [-1, 1]) {
+        const cx = s * e.r * .32, cy = -e.r * .1;
+        ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(cx, cy, er, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#10131a"; ctx.beginPath(); ctx.arc(cx + ex * pr, cy + ey * pr, pr, 0, Math.PI * 2); ctx.fill();
+      }
+      if (e.hit > 0.05) { shapePath(shape, e.r); ctx.fillStyle = hexAlpha(palette.ink, e.hit * 0.5); ctx.fill(); }
       ctx.restore();
     }
   }
@@ -193,7 +204,11 @@ ENEMY_SET: {{ENEMY_SET}}
     if (player.invuln > 0) { ctx.fillStyle = hexAlpha(palette.good, .28); ctx.beginPath(); ctx.arc(0, 0, player.r * 1.22, 0, Math.PI * 2); ctx.fill(); }
     ctx.rotate(aim);
     ctx.fillStyle = palette.ink; ctx.beginPath(); ctx.roundRect(0, -player.r * .26, player.r * 1.35, player.r * .52, player.r * .26); ctx.fill();
-    ctx.fillStyle = palette.accent; ctx.beginPath(); ctx.arc(0, 0, player.r, 0, Math.PI * 2); ctx.fill();
+    const pg = ctx.createRadialGradient(-player.r * .3, -player.r * .35, player.r * .1, 0, 0, player.r * 1.1);
+    pg.addColorStop(0, lighten(palette.accent, .55)); pg.addColorStop(1, palette.accent);
+    ctx.shadowColor = palette.accent; ctx.shadowBlur = 16;
+    ctx.fillStyle = pg; ctx.beginPath(); ctx.arc(0, 0, player.r, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowBlur = 0;
     ctx.strokeStyle = palette.ink; ctx.lineWidth = 3; ctx.stroke();
     ctx.fillStyle = palette.ink; ctx.beginPath(); ctx.arc(player.r * .34, 0, player.r * .17, 0, Math.PI * 2); ctx.fill();
     ctx.restore();

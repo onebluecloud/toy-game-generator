@@ -18,12 +18,14 @@ let width=0,height=0,dpr=1,state=READY,last=0,acc=0,score=0,best=Number(localSto
 let energy=3,turn=1,playerHp=34,shield=0,enemyHp=52,enemyIntent=7,combo=0,shake=0,flash=0,notice="",noticeTime=0;
 const p=SPEC.palette,hand=[],cardRects=[],particles=[],floats=[];
 const deck=[
- {id:"pitch",name:"Pitch",cost:1,type:"attack",value:7},
- {id:"proof",name:"Proof",cost:1,type:"shield",value:6},
- {id:"leverage",name:"Leverage",cost:2,type:"attack",value:13},
- {id:"focus",name:"Focus",cost:0,type:"energy",value:1},
- {id:"close",name:"Close",cost:3,type:"attack",value:22}
+ {id:"pitch",cost:1,type:"attack",value:7},
+ {id:"proof",cost:1,type:"shield",value:6},
+ {id:"leverage",cost:2,type:"attack",value:13},
+ {id:"focus",cost:0,type:"energy",value:1},
+ {id:"close",cost:3,type:"attack",value:22}
 ];
+const cardName=c=>(S.cards&&S.cards[c.id])||c.id;
+const typeName=t=>(S.types&&S.types[t])||t;
 function resize(){dpr=Math.max(1,Math.min(2,devicePixelRatio||1));width=innerWidth;height=innerHeight;canvas.width=Math.floor(width*dpr);canvas.height=Math.floor(height*dpr);canvas.style.width=width+"px";canvas.style.height=height+"px";ctx.setTransform(dpr,0,0,dpr,0,0);layout();}
 function layout(){cardRects.length=0;const w=Math.min(142,width*.18),gap=14,total=hand.length*w+(hand.length-1)*gap,x0=(width-total)/2,y=height-155;for(let i=0;i<hand.length;i++)cardRects.push({x:x0+i*(w+gap),y,w,h:120,card:hand[i]});}
 function reset(){state=PLAYING;score=0;timeLeft=SPEC.duration;turn=1;playerHp=34;shield=0;enemyHp=52;combo=0;notice="";particles.length=floats.length=0;newTurn();}
@@ -31,15 +33,15 @@ function newTurn(){energy=3+Math.floor(turn/3);enemyIntent=7+Math.floor(turn*1.3
 function pointerdown(e){e.preventDefault();if(state===READY||state===OVER){reset();return}for(const r of cardRects)if(inside(e.clientX,e.clientY,r)){playCard(r.card,r.x+r.w/2,r.y+40);return}if(e.clientY<height*.32)endTurn();}
 function pointermove(e){e.preventDefault()}function pointerup(e){e.preventDefault()}
 canvas.addEventListener("pointerdown",pointerdown);canvas.addEventListener("pointermove",pointermove);canvas.addEventListener("pointerup",pointerup);canvas.addEventListener("pointercancel",pointerup);addEventListener("resize",resize);
-function playCard(card,x,y){if(card.cost>energy){flash=.25;notice="Not enough energy";noticeTime=1;return}energy-=card.cost;const idx=hand.indexOf(card);if(idx>=0)hand.splice(idx,1);if(card.type==="attack"){const dmg=Math.round((card.value+combo*2)*SPEC.tuning.scoreMultiplier);enemyHp-=dmg;score+=dmg;combo++;addFloat("+"+dmg,x,y,p.good);burst(x,y,p.accent,18)}else if(card.type==="shield"){shield+=card.value;combo=0;addFloat("Shield",x,y,p.ink);burst(x,y,p.good,12)}else{energy+=card.value;addFloat("+Energy",x,y,p.accent);burst(x,y,p.accent,10)}if(enemyHp<=0){score+=80;enemyHp=48+turn*6;notice="Deal closed";noticeTime=1.1;turn++;newTurn()}layout();}
-function endTurn(){const damage=Math.max(0,enemyIntent-shield);playerHp-=damage;shield=0;combo=0;turn++;notice=damage?"Pressure -"+damage:"Blocked";noticeTime=1;shake=damage?.25:0;newTurn();if(playerHp<=0)over();}
+function playCard(card,x,y){if(card.cost>energy){flash=.25;notice=S.notEnough;noticeTime=1;return}energy-=card.cost;const idx=hand.indexOf(card);if(idx>=0)hand.splice(idx,1);if(card.type==="attack"){const dmg=Math.round((card.value+combo*2)*SPEC.tuning.scoreMultiplier);enemyHp-=dmg;score+=dmg;combo++;addFloat("+"+dmg,x,y,p.good);burst(x,y,p.accent,18)}else if(card.type==="shield"){shield+=card.value;combo=0;addFloat(S.shield,x,y,p.ink);burst(x,y,p.good,12)}else{energy+=card.value;addFloat("+"+S.energy,x,y,p.accent);burst(x,y,p.accent,10)}if(enemyHp<=0){score+=80;enemyHp=48+turn*6;notice=S.dealClosed;noticeTime=1.1;turn++;newTurn()}layout();}
+function endTurn(){const damage=Math.max(0,enemyIntent-shield);playerHp-=damage;shield=0;combo=0;turn++;notice=damage?S.demand+" -"+damage:S.blocked;noticeTime=1;shake=damage?.25:0;newTurn();if(playerHp<=0)over();}
 function update(dt){if(state!==PLAYING){updateFx(dt);return}timeLeft-=dt;if(timeLeft<=0)over();noticeTime=Math.max(0,noticeTime-dt);shake=Math.max(0,shake-dt*3);flash=Math.max(0,flash-dt*3);updateFx(dt)}
 function over(){state=OVER;best=Math.max(best,score);localStorage.setItem("tgg-"+SPEC.id+"-best",String(best))}
 function updateFx(dt){for(const q of particles){q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt}for(const f of floats){f.y-=40*dt;f.life-=dt}trim(particles,q=>q.life<=0);trim(floats,f=>f.life<=0)}
 function render(){ctx.save();if(shake)ctx.translate((Math.random()-.5)*shake*18,(Math.random()-.5)*shake*18);bg();arena();cards();fx();hud();if(flash){ctx.fillStyle=alpha(p.bad,flash*.25);ctx.fillRect(0,0,width,height)}if(state!==PLAYING)overlay();ctx.restore()}
 function bg(){const g=ctx.createLinearGradient(0,0,0,height);g.addColorStop(0,p.backgroundA);g.addColorStop(1,p.backgroundB);ctx.fillStyle=g;ctx.fillRect(0,0,width,height)}
 function arena(){ctx.fillStyle=alpha(p.ink,.06);ctx.beginPath();ctx.roundRect(width*.16,height*.16,width*.68,height*.34,18);ctx.fill();text(S.demand+" "+Math.max(0,Math.ceil(enemyHp)),width/2,height*.26,30,p.bad,"center");text(S.turn+" "+enemyIntent,width/2,height*.34,16,p.ink,"center");if(noticeTime>0)text(notice,width/2,height*.44,17,p.accent,"center")}
-function cards(){for(const r of cardRects){ctx.fillStyle=alpha(p.ink,.09);ctx.beginPath();ctx.roundRect(r.x,r.y,r.w,r.h,12);ctx.fill();ctx.strokeStyle=p.accent;ctx.lineWidth=2;ctx.stroke();text(r.card.name,r.x+r.w/2,r.y+26,17,p.ink,"center");text("Cost "+r.card.cost,r.x+r.w/2,r.y+58,13,p.accent,"center");text(r.card.type+" "+r.card.value,r.x+r.w/2,r.y+88,13,p.ink,"center")}}
+function cards(){for(const r of cardRects){ctx.fillStyle=alpha(p.ink,.09);ctx.beginPath();ctx.roundRect(r.x,r.y,r.w,r.h,12);ctx.fill();ctx.strokeStyle=p.accent;ctx.lineWidth=2;ctx.stroke();text(cardName(r.card),r.x+r.w/2,r.y+26,17,p.ink,"center");text(S.cost+" "+r.card.cost,r.x+r.w/2,r.y+58,13,p.accent,"center");text(typeName(r.card.type)+" "+r.card.value,r.x+r.w/2,r.y+88,13,p.ink,"center")}}
 function hud(){if(state===READY)return;text(SPEC.title,20,30,22,p.ink,"left");text(S.score+" "+score+" "+S.best+" "+best,20,58,13,p.ink,"left");text(S.hp+" "+playerHp+" "+S.shield+" "+shield+" "+S.energy+" "+energy,width-20,32,15,p.ink,"right");text(S.time.replace("{n}",Math.ceil(timeLeft)),width-20,60,22,timeLeft<10?p.bad:p.ink,"right")}
 function fx(){for(const q of particles){ctx.globalAlpha=q.life*2;ctx.fillStyle=q.color;ctx.fillRect(q.x,q.y,q.size,q.size)}ctx.globalAlpha=1;for(const f of floats){ctx.globalAlpha=f.life;text(f.text,f.x,f.y,16,f.color,"center")}ctx.globalAlpha=1}
 function overlay(){ctx.fillStyle="rgba(0,0,0,.68)";ctx.fillRect(0,0,width,height);text(SPEC.title,width/2,height*.44,36,p.ink,"center");text(SPEC.roles.objective,width/2,height*.44+42,15,p.ink,"center");text(state===OVER?S.restart:S.start,width/2,height*.44+96,25,p.accent,"center");if(state===OVER)text(S.score+" "+score+" "+S.best+" "+best,width/2,height*.44+132,15,p.ink,"center")}

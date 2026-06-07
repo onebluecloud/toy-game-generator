@@ -50,45 +50,9 @@ SECONDARY_TWIST: trust-pressure
     green: SPEC.palette.good
   };
 
-  const cases = [
-    {
-      client: "Case 01 / merchant",
-      question: "A quiet loss follows public success.",
-      clues: [
-        { id: "ledger", title: "late ledger", text: "Profit rose, sleep fell.", weight: { career: 2, money: 1 } },
-        { id: "door", title: "closed door", text: "Two offers arrived together.", weight: { career: 2, relation: -1 } },
-        { id: "ash", title: "warm ash", text: "An old promise still burns.", weight: { relation: 2, money: -1 } }
-      ],
-      answer: "career"
-    },
-    {
-      client: "Case 02 / traveler",
-      question: "A return is desired, but the road resists.",
-      clues: [
-        { id: "map", title: "creased map", text: "The route bends back twice.", weight: { travel: 2, relation: 1 } },
-        { id: "thread", title: "red thread", text: "A name was kept hidden.", weight: { relation: 2, travel: -1 } },
-        { id: "ticket", title: "unused ticket", text: "Delay protects the outcome.", weight: { travel: 2, money: -1 } }
-      ],
-      answer: "travel"
-    },
-    {
-      client: "Case 03 / heir",
-      question: "The house is divided by an unseen debt.",
-      clues: [
-        { id: "seal", title: "broken seal", text: "An agreement was opened early.", weight: { money: 2, relation: -1 } },
-        { id: "cup", title: "shared cup", text: "Kindness hides calculation.", weight: { relation: 2, money: 1 } },
-        { id: "window", title: "north window", text: "The safest path is restraint.", weight: { money: 2, career: -1 } }
-      ],
-      answer: "money"
-    }
-  ];
-
-  const hypotheses = [
-    { id: "career", label: "Career Pivot", desc: "Change the role, not the ambition." },
-    { id: "relation", label: "Hidden Bond", desc: "The true force is obligation." },
-    { id: "money", label: "Debt Pattern", desc: "Value is leaking through delay." },
-    { id: "travel", label: "Delayed Return", desc: "Movement must wait for clarity." }
-  ];
+  // Case fiction + readings are localized: see kits/strings/{en,zh}.json case-deduction.cases / .hypotheses
+  const cases = S.cases;
+  const hypotheses = S.hypotheses;
 
   let width = 0, height = 0, dpr = 1;
   let state = STATE_READY;
@@ -466,15 +430,17 @@ SECONDARY_TWIST: trust-pressure
     ctx.font = `700 ${size}px Georgia, serif`;
     ctx.textAlign = align;
     ctx.textBaseline = "middle";
-    const words = text.split(" ");
+    const drawX = align === "center" ? x + maxWidth / 2 : x;
+    const byChar = text.indexOf(" ") === -1; // CJK has no spaces -> wrap per character
+    const tokens = byChar ? Array.from(text) : text.split(" ");
+    const joiner = byChar ? "" : " ";
     let line = "";
     let yy = y;
-    const drawX = align === "center" ? x + maxWidth / 2 : x;
-    for (const word of words) {
-      const test = line ? line + " " + word : word;
+    for (const token of tokens) {
+      const test = line ? line + joiner + token : token;
       if (ctx.measureText(test).width > maxWidth && line) {
         ctx.fillText(line, drawX, yy);
-        line = word;
+        line = token;
         yy += lineHeight;
       } else {
         line = test;

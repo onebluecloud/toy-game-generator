@@ -26,7 +26,7 @@
     }
   },
   "case-deduction": {
-    "instruction": "拖动证据入册，在信任耗尽前选择最强解读。",
+    "instruction": "把证据拖入档案，在信任耗尽前选出最强的解读。",
     "evidence": "证据",
     "ledger": "档案",
     "readings": "解读",
@@ -39,13 +39,57 @@
     "solved": "判断成立",
     "failed": "判断偏弱",
     "readingSealed": "解读确认",
-    "contradiction": "矛盾已标记"
+    "contradiction": "矛盾已标记",
+    "cases": [
+      {
+        "client": "案一 / 商人",
+        "question": "风光背后，暗自折损。",
+        "answer": "career",
+        "clues": [
+          { "id": "ledger", "title": "迟到的账本", "text": "利润见涨，睡眠下降。", "weight": { "career": 2, "money": 1 } },
+          { "id": "door", "title": "关上的门", "text": "两个邀约同时到来。", "weight": { "career": 2, "relation": -1 } },
+          { "id": "ash", "title": "余温的灰", "text": "一个旧承诺仍在灼烧。", "weight": { "relation": 2, "money": -1 } }
+        ]
+      },
+      {
+        "client": "案二 / 旅人",
+        "question": "归心已起，归途却阻。",
+        "answer": "travel",
+        "clues": [
+          { "id": "map", "title": "折痕的地图", "text": "路线两度折返。", "weight": { "travel": 2, "relation": 1 } },
+          { "id": "thread", "title": "红线", "text": "有个名字被藏了起来。", "weight": { "relation": 2, "travel": -1 } },
+          { "id": "ticket", "title": "未用的票", "text": "延迟反而保全结局。", "weight": { "travel": 2, "money": -1 } }
+        ]
+      },
+      {
+        "client": "案三 / 继承人",
+        "question": "一笔看不见的债，裂开了这个家。",
+        "answer": "money",
+        "clues": [
+          { "id": "seal", "title": "破损的封印", "text": "一纸约定被提前拆开。", "weight": { "money": 2, "relation": -1 } },
+          { "id": "cup", "title": "共饮的杯", "text": "善意里藏着算计。", "weight": { "relation": 2, "money": 1 } },
+          { "id": "window", "title": "朝北的窗", "text": "最稳的路是克制。", "weight": { "money": 2, "career": -1 } }
+        ]
+      }
+    ],
+    "hypotheses": [
+      { "id": "career", "label": "事业转向", "desc": "换的是位置，不是野心。" },
+      { "id": "relation", "label": "隐秘羁绊", "desc": "真正的牵引是亏欠。" },
+      { "id": "money", "label": "债务模式", "desc": "价值正从拖延中流失。" },
+      { "id": "travel", "label": "延迟归程", "desc": "行动必须等清晰。" }
+    ]
   },
   "deck-builder": {
     "energy": "能量",
     "shield": "护盾",
     "demand": "压力",
-    "endTurn": "结束回合"
+    "endTurn": "结束回合",
+    "cost": "费用",
+    "notEnough": "能量不足",
+    "dealClosed": "达成成交",
+    "blocked": "已挡下",
+    "cards": { "pitch": "提案", "proof": "佐证", "leverage": "筹码", "focus": "专注", "close": "成交" },
+    "types": { "attack": "攻击", "shield": "护盾", "energy": "能量" }
   },
   "match-puzzle": {},
   "physics-arc": {
@@ -55,7 +99,8 @@
   "rhythm-tap": {
     "perfect": "完美",
     "good": "命中",
-    "miss": "失误"
+    "miss": "失误",
+    "tap": "点击"
   },
   "platform-climb": {
     "jumpMove": "跳跃 / 移动"
@@ -64,11 +109,18 @@
     "cash": "现金",
     "rate": "产能",
     "upgrade": "升级",
-    "bottleneck": "清理瓶颈"
+    "bottleneck": "清理瓶颈",
+    "bottleneckCleared": "瓶颈已清",
+    "needCash": "现金不足",
+    "upgraded": "已升级",
+    "stations": ["进料", "加工", "出货"]
   },
   "grid-tactics": {
-    "locks": "锁定"
+    "locks": "锁定",
+    "breach": "被突破"
   },
   "runner-lane": {},
-  "tower-defense": {}
+  "tower-defense": {
+    "up": "升级"
+  }
 }
