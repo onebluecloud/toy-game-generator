@@ -1,0 +1,210 @@
+[
+  {
+    "keywords": ["coffee", "bean", "espresso", "cafe", "latte", "咖啡", "咖啡豆", "拿铁"],
+    "roles": {
+      "player": "coffee bean hero",
+      "objective": "survive the caffeine rush",
+      "threat": "sleepy blobs",
+      "reward": "roasted xp beans",
+      "special": "espresso burst",
+      "environment": "tabletop cafe arena"
+    },
+    "preferredPlayKits": ["horde-survival"],
+    "preferredStyleKits": ["toy-diorama"],
+    "preferredEnemySets": ["sleepy-swarm"],
+    "maturityLevel": "arcade",
+    "coreExperience": "survive caffeine pressure, collect upgrades, and push a busy arena score loop"
+  },
+  {
+    "keywords": ["race", "racing", "car", "drift", "speed", "highway", "赛车", "汽车", "漂移", "公路", "竞速"],
+    "roles": {
+      "player": "neon race car",
+      "objective": "drive as far as possible",
+      "threat": "traffic and road hazards",
+      "reward": "nitro orbs",
+      "special": "boost gate",
+      "environment": "neon highway"
+    },
+    "preferredPlayKits": ["runner-lane"],
+    "preferredStyleKits": ["pixel-neon"],
+    "preferredEnemySets": ["traffic-pack"],
+    "maturityLevel": "arcade",
+    "coreExperience": "speed, lane risk, near misses, and visible score pressure"
+  },
+  {
+    "keywords": ["computer", "virus", "code", "hack", "bug", "电脑", "病毒", "代码", "黑客", "漏洞"],
+    "roles": {
+      "player": "repair cursor",
+      "objective": "clean the system",
+      "threat": "glitches",
+      "reward": "data packets",
+      "special": "firewall patch",
+      "environment": "neon terminal"
+    },
+    "preferredPlayKits": ["horde-survival"],
+    "preferredStyleKits": ["pixel-neon"],
+    "preferredEnemySets": ["glitch-pack"],
+    "maturityLevel": "arcade",
+    "coreExperience": "contain spreading glitches, clean pressure, and upgrade against system chaos"
+  },
+  {
+    "keywords": ["fortune", "divination", "oracle", "tarot", "astrology", "bazi", "fate", "算命", "占卜", "塔罗", "星盘", "八字", "命理", "运势"],
+    "roles": {
+      "player": "archive reader",
+      "objective": "seal the strongest interpretation",
+      "threat": "ambiguity and lost trust",
+      "reward": "clear insight",
+      "special": "contradiction mark",
+      "environment": "occult archive"
+    },
+    "preferredPlayKits": ["case-deduction"],
+    "preferredStyleKits": ["occult-archive"],
+    "preferredEnemySets": ["ambiguity-pack"],
+    "maturityLevel": "premium",
+    "coreExperience": "interpret ambiguous evidence under trust pressure and choose the most defensible reading"
+  },
+  {
+    "keywords": ["detective", "mystery", "case", "clue", "investigation", "risk", "consulting", "diagnosis", "推理", "侦探", "案件", "线索", "调查", "咨询", "诊断"],
+    "roles": {
+      "player": "case analyst",
+      "objective": "resolve the case with enough certainty",
+      "threat": "false leads and contradictions",
+      "reward": "confirmed finding",
+      "special": "evidence ledger",
+      "environment": "noir case room"
+    },
+    "preferredPlayKits": ["case-deduction"],
+    "preferredStyleKits": ["noir-ledger", "clinical-ritual"],
+    "preferredEnemySets": ["ambiguity-pack"],
+    "maturityLevel": "premium",
+    "coreExperience": "read clues, manage uncertainty, and defend an interpretation before trust collapses"
+  },
+  {
+    "keywords": ["tower", "defense", "guard", "protect", "siege", "base", "cafe defense", "塔防", "防守", "守护", "保卫", "基地", "咖啡店"],
+    "roles": {
+      "player": "defense planner",
+      "objective": "hold the route until the final wave",
+      "threat": "incoming siege units",
+      "reward": "build coins",
+      "special": "focus tower",
+      "environment": "paper defense map"
+    },
+    "preferredPlayKits": ["tower-defense"],
+    "preferredStyleKits": ["paper-cut"],
+    "preferredEnemySets": ["siege-pack"],
+    "maturityLevel": "arcade",
+    "coreExperience": "place defenses, read attack lanes, and survive escalating waves"
+  },
+  {
+    "keywords": ["card", "deck", "deckbuilder", "deck-builder", "business negotiation", "卡牌", "构筑", "牌组", "商业谈判", "谈判卡牌"],
+    "roles": {
+      "player": "deal strategist",
+      "objective": "resolve the negotiation before pressure wins",
+      "threat": "objections and debt",
+      "reward": "leverage cards",
+      "special": "combo close",
+      "environment": "quiet strategy table"
+    },
+    "preferredPlayKits": ["deck-builder"],
+    "preferredStyleKits": ["clinical-ritual"],
+    "preferredEnemySets": ["dilemma-pack"],
+    "maturityLevel": "premium",
+    "coreExperience": "build a hand, spend scarce energy, and chain cards into a decisive outcome"
+  },
+  {
+    "keywords": ["match", "puzzle", "tile", "clear", "coffee match", "咖啡豆消除游戏", "咖啡豆消除", "消除", "连线", "方块"],
+    "roles": {
+      "player": "pattern cleaner",
+      "objective": "clear the board with high-value chains",
+      "threat": "clutter blockers",
+      "reward": "chain bonus",
+      "special": "board sweep",
+      "environment": "tabletop puzzle tray"
+    },
+    "preferredPlayKits": ["match-puzzle"],
+    "preferredStyleKits": ["toy-diorama"],
+    "preferredEnemySets": ["clutter-pack"],
+    "maturityLevel": "casual",
+    "coreExperience": "spot matching groups, clear clutter, and build satisfying chain reactions"
+  },
+  {
+    "keywords": ["throw", "arc", "physics", "slingshot", "rescue", "launch", "投掷", "弹射", "救援", "发射", "物理"],
+    "roles": {
+      "player": "rescue launcher",
+      "objective": "hit the target with limited shots",
+      "threat": "obstacles and wasted arcs",
+      "reward": "clean hit bonus",
+      "special": "bank shot",
+      "environment": "paper rescue range"
+    },
+    "preferredPlayKits": ["physics-arc"],
+    "preferredStyleKits": ["paper-cut"],
+    "preferredEnemySets": ["obstacle-pack"],
+    "maturityLevel": "arcade",
+    "coreExperience": "read the arc, commit to a launch, and solve targets with limited shots"
+  },
+  {
+    "keywords": ["rhythm", "music", "beat", "tap", "dance", "timing", "音乐节奏", "节奏点击", "节奏", "音乐", "点击"],
+    "roles": {
+      "player": "beat keeper",
+      "objective": "hit notes near the timing line",
+      "threat": "missed beats",
+      "reward": "perfect streak",
+      "special": "sync burst",
+      "environment": "neon beat lane"
+    },
+    "preferredPlayKits": ["rhythm-tap"],
+    "preferredStyleKits": ["pixel-neon"],
+    "preferredEnemySets": ["beat-pack"],
+    "maturityLevel": "arcade",
+    "coreExperience": "tap on timing, protect the streak, and ride escalating beat density"
+  },
+  {
+    "keywords": ["platform", "jump", "climb", "adventure climb", "tower climb", "平台跳跃", "爬塔平台", "平台", "跳跃", "爬塔", "攀爬", "冒险"],
+    "roles": {
+      "player": "climber",
+      "objective": "keep climbing before the danger rises",
+      "threat": "gaps and hazards",
+      "reward": "height bonus",
+      "special": "safe landing",
+      "environment": "layered climb shaft"
+    },
+    "preferredPlayKits": ["platform-climb"],
+    "preferredStyleKits": ["paper-cut"],
+    "preferredEnemySets": ["hazard-pack"],
+    "maturityLevel": "arcade",
+    "coreExperience": "jump between platforms, land cleanly, and stay ahead of rising pressure"
+  },
+  {
+    "keywords": ["idle", "automation", "factory", "business automation", "cafe automation", "咖啡店经营自动化", "咖啡店经营", "放置", "自动化", "经营", "工厂"],
+    "roles": {
+      "player": "operations planner",
+      "objective": "automate production and clear bottlenecks",
+      "threat": "queues and broken machines",
+      "reward": "production profit",
+      "special": "automation surge",
+      "environment": "compact cafe line"
+    },
+    "preferredPlayKits": ["idle-automation"],
+    "preferredStyleKits": ["toy-diorama"],
+    "preferredEnemySets": ["bottleneck-pack"],
+    "maturityLevel": "casual",
+    "coreExperience": "upgrade stations, watch production compound, and remove bottlenecks"
+  },
+  {
+    "keywords": ["grid", "tactics", "strategy board", "contain virus", "病毒围堵", "战术棋盘", "围堵", "战术", "棋盘", "格子"],
+    "roles": {
+      "player": "containment unit",
+      "objective": "seal threats before they overrun the grid",
+      "threat": "spreading virus units",
+      "reward": "secured tiles",
+      "special": "zone lock",
+      "environment": "neon containment grid"
+    },
+    "preferredPlayKits": ["grid-tactics"],
+    "preferredStyleKits": ["pixel-neon"],
+    "preferredEnemySets": ["tactic-pack"],
+    "maturityLevel": "arcade",
+    "coreExperience": "move turn by turn, control space, and contain spreading threats"
+  }
+]

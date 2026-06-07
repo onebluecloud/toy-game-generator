@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/toy-game-generator/game-spec.schema.json",
+  "title": "Toy Game Generator GameSpec",
+  "type": "object",
+  "required": [
+    "version",
+    "id",
+    "title",
+    "theme",
+    "lang",
+    "strings",
+    "maturityLevel",
+    "coreExperience",
+    "playKit",
+    "styleKit",
+    "mechanics",
+    "enemySet",
+    "enemyTypes",
+    "palette",
+    "roles",
+    "duration",
+    "difficulty",
+    "tuning"
+  ],
+  "properties": {
+    "version": { "type": "string", "const": "0.1" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "title": { "type": "string", "minLength": 1 },
+    "theme": { "type": "string", "minLength": 1 },
+    "lang": { "type": "string", "enum": ["en", "zh"] },
+    "strings": {
+      "type": "object",
+      "required": ["start", "restart", "score", "best", "time", "gameOver"],
+      "additionalProperties": true
+    },
+    "maturityLevel": { "type": "string", "enum": ["toy", "casual", "arcade", "premium", "satirical"] },
+    "coreExperience": { "type": "string", "minLength": 1 },
+    "playKit": { "type": "string", "minLength": 1 },
+    "styleKit": { "type": "string", "minLength": 1 },
+    "mechanics": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "enemySet": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "enemyTypes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "palette": {
+      "type": "object",
+      "required": ["backgroundA", "backgroundB", "accent", "good", "bad", "ink"],
+      "properties": {
+        "backgroundA": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "backgroundB": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "good": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "bad": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "ink": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+      },
+      "additionalProperties": false
+    },
+    "roles": {
+      "type": "object",
+      "required": ["player", "objective", "threat", "reward", "special", "environment"],
+      "properties": {
+        "player": { "type": "string" },
+        "objective": { "type": "string" },
+        "threat": { "type": "string" },
+        "reward": { "type": "string" },
+        "special": { "type": "string" },
+        "environment": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "duration": { "type": "integer", "minimum": 30, "maximum": 180 },
+    "difficulty": { "type": "string", "enum": ["mellow", "standard", "espresso"] },
+    "tuning": {
+      "type": "object",
+      "required": ["speed", "spawnRate", "scoreMultiplier"],
+      "properties": {
+        "speed": { "type": "number", "minimum": 0.1 },
+        "spawnRate": { "type": "number", "minimum": 0.1 },
+        "scoreMultiplier": { "type": "number", "minimum": 0.1 }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Generated game output (scratch — the published samples live in docs/)
+examples/
+output/
+
+# Review/export bundles (local artifacts, not for the public repo)
+exports/
+*.zip
+
+# Local build of the site is committed under docs/ on purpose; only ignore stray temp
+docs/.tmp/
+
+# Secrets
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

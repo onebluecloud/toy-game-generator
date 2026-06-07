@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{TITLE}}</title>
+<link rel="icon" href="data:,">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:{{BACKGROUND_A}};color:{{INK}};font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none;user-select:none}
+canvas{display:block;width:100vw;height:100vh;touch-action:none}
+</style>
+</head>
+<body>
+<!--
+GAME_SPEC_ID: {{ID}}
+GAME_KIT: tower-defense
+STYLE_KIT: {{STYLE_KIT}}
+MECHANICS: {{MECHANICS}}
+ENEMY_SET: {{ENEMY_SET}}
+-->
+<canvas id="game" aria-label="{{TITLE}}"></canvas>
+<script>
+(() => {
+  "use strict";
+  const SPEC = {{SPEC_JSON}};
+  const S = SPEC.strings;
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const STATE_READY = "READY", STATE_PLAYING = "PLAYING", STATE_OVER = "OVER";
+  const FIXED_DT = 1 / 60;
+  let width = 0, height = 0, dpr = 1, state = STATE_READY, last = 0, acc = 0;
+  let score = 0, best = Number(localStorage.getItem("tgg-" + SPEC.id + "-best") || 0), timeLeft = SPEC.duration;
+  let lives = 10, coins = 55, spawnTimer = 0, wave = 1, shake = 0, flash = 0, hoverNode = null;
+  const palette = SPEC.palette, lanes = [], nodes = [], towers = [], enemies = [], bullets = [], particles = [], floats = [];
+
+  function resize() {
+    dpr = Math.max(1, Math.min(2, devicePixelRatio || 1));
+    width = innerWidth; height = innerHeight;
+    canvas.width = Math.floor(width * dpr); canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + "px"; canvas.style.height = height + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    layout();
+  }
+
+  function layout() {
+    lanes.length = 0; nodes.length = 0;
+    const top = Math.max(120, height * 0.24);
+    const gap = Math.max(82, height * 0.17);
+    for (let i = 0; i < 3; i += 1) lanes.push(top + i * gap);
+    const cols = [0.24, 0.42, 0.60, 0.78];
+    for (const lane of lanes) for (const c of cols) nodes.push({ x: width * c, y: lane - 38, r: 22, tower: null });
+  }
+
+  function reset() {
+    state = STATE_PLAYING; score = 0; timeLeft = SPEC.duration; lives = 10; coins = 55; spawnTimer = 0.3; wave = 1;
+    towers.length = enemies.length = bullets.length = particles.length = floats.length = 0;
+    for (const node of nodes) node.tower = null;
+  }
+
+  function pointerdown(event) {
+    event.preventDefault();
+    if (state === STATE_READY || state === STATE_OVER) { reset(); return; }
+    if (state !== STATE_PLAYING) return;
+    const node = nearestNode(event.clientX, event.clientY);
+    if (node && !node.tower && coins >= 20) {
+      const tower = { x: node.x, y: node.y, r: 19, range: 150, cooldown: 0, level: 1 };
+      node.tower = tower; towers.push(tower); coins -= 20;
+      addFloat("-20", tower.x, tower.y - 28, palette.accent);
+      burst(tower.x, tower.y, palette.good, 14, 90);
+    } else if (node && node.tower && coins >= 15) {
+      node.tower.level += 1; node.tower.range += 12; coins -= 15;
+      addFloat("UP", node.x, node.y - 28, palette.accent);
+      burst(node.x, node.y, palette.accent, 12, 80);
+    } else {
+      flash = 0.18;
+    }
+  }
+
+  function pointermove(event) {
+    event.preventDefault();
+    hoverNode = nearestNode(event.clientX, event.clientY);
+  }
+
+  function pointerup(event) { event.preventDefault(); }
+  canvas.addEventListener("pointerdown", pointerdown);
+  canvas.addEventListener("pointermove", pointermove);
+  canvas.addEventListener("pointerup", pointerup);
+  canvas.addEventListener("pointercancel", pointerup);
+  addEventListener("resize", resize);
+
+  function update(dt) {
+    if (state !== STATE_PLAYING) { updateFx(dt); return; }
+    timeLeft -= dt;
+    wave = 1 + Math.floor((SPEC.duration - timeLeft) / 15);
+    if (timeLeft <= 0 || lives <= 0) return over();
+    spawnTimer -= dt;
+    if (spawnTimer <= 0) {
+      spawnEnemy();
+      spawnTimer = Math.max(0.34, (1.25 - wave * 0.12) / SPEC.tuning.spawnRate);
+    }
+    for (const enemy of enemies) {
+      enemy.x += enemy.speed * dt * SPEC.tuning.speed;
+      if (!enemy.done && enemy.x > width + 42) {
+        enemy.done = true; lives -= enemy.kind === "tank" ? 2 : 1; shake = 0.26; flash = 0.35;
+      }
+    }
+    for (const tower of towers) {
+      tower.cooldown -= dt;
+      if (tower.cooldown <= 0) {
+        const target = enemies.filter(e => !e.done && e.hp > 0).sort((a, b) => dist(tower, a) - dist(tower, b))[0];
+        if (target && dist(tower, target) <= tower.range) {
+          tower.cooldown = Math.max(0.22, 0.78 - tower.level * 0.08);
+          bullets.push({ x: tower.x, y: tower.y, target, speed: 520, damage: 1 + tower.level });
+        }
+      }
+    }
+    for (const bullet of bullets) {
+      if (!bullet.target || bullet.target.done || bullet.target.hp <= 0) { bullet.done = true; continue; }
+      const dx = bullet.target.x - bullet.x, dy = bullet.target.y - bullet.y, d = Math.max(1, Math.hypot(dx, dy));
+      bullet.x += dx / d * bullet.speed * dt; bullet.y += dy / d * bullet.speed * dt;
+      if (d < 18) {
+        bullet.done = true; bullet.target.hp -= bullet.damage;
+        burst(bullet.target.x, bullet.target.y, palette.accent, 5, 55);
+        if (bullet.target.hp <= 0) {
+          bullet.target.done = true; const gain = bullet.target.kind === "tank" ? 18 : 10;
+          coins += 8; score += Math.round(gain * SPEC.tuning.scoreMultiplier); addFloat("+" + gain, bullet.target.x, bullet.target.y, palette.good);
+        }
+      }
+    }
+    trim(enemies, e => e.done); trim(bullets, b => b.done);
+    shake = Math.max(0, shake - dt * 3); flash = Math.max(0, flash - dt * 3);
+    updateFx(dt);
+  }
+
+  function over() {
+    state = STATE_OVER;
+    best = Math.max(best, score);
+    localStorage.setItem("tgg-" + SPEC.id + "-best", String(best));
+  }
+
+  function spawnEnemy() {
+    const lane = lanes[Math.floor(Math.random() * lanes.length)];
+    const roll = Math.random();
+    const kind = roll < 0.18 ? "tank" : roll < 0.42 ? "swarm" : "runner";
+    enemies.push({
+      x: -40, y: lane, kind,
+      hp: kind === "tank" ? 8 + wave * 2 : kind === "swarm" ? 3 + wave : 4 + wave,
+      maxHp: kind === "tank" ? 8 + wave * 2 : kind === "swarm" ? 3 + wave : 4 + wave,
+      speed: kind === "tank" ? 34 + wave * 3 : kind === "swarm" ? 72 + wave * 5 : 54 + wave * 4,
+      done: false
+    });
+  }
+
+  function updateFx(dt) {
+    for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; }
+    for (const f of floats) { f.y -= 34 * dt; f.life -= dt; }
+    trim(particles, p => p.life <= 0); trim(floats, f => f.life <= 0);
+  }
+
+  function render() {
+    ctx.save();
+    if (shake) ctx.translate((Math.random() - 0.5) * shake * 18, (Math.random() - 0.5) * shake * 18);
+    background(); map(); drawNodes(); drawTowers(); drawEnemies(); drawBullets(); drawFx(); hud();
+    if (flash) { ctx.fillStyle = alpha(palette.bad, flash * 0.24); ctx.fillRect(0, 0, width, height); }
+    if (state !== STATE_PLAYING) overlay();
+    ctx.restore();
+  }
+
+  function background() {
+    const g = ctx.createLinearGradient(0, 0, 0, height);
+    g.addColorStop(0, palette.backgroundA); g.addColorStop(1, palette.backgroundB);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, width, height);
+    ctx.strokeStyle = "rgba(255,255,255,.08)";
+    for (let x = 0; x < width; x += 44) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
+  }
+
+  function map() {
+    for (const lane of lanes) {
+      ctx.strokeStyle = alpha(palette.ink, 0.18); ctx.lineWidth = 34; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(-30, lane); ctx.lineTo(width + 30, lane); ctx.stroke();
+      ctx.strokeStyle = alpha(palette.accent, 0.52); ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(0, lane); ctx.lineTo(width, lane); ctx.stroke();
+    }
+    ctx.fillStyle = alpha(palette.bad, 0.24); ctx.fillRect(width - 22, lanes[0] - 48, 12, lanes[2] - lanes[0] + 96);
+  }
+
+  function drawNodes() {
+    for (const node of nodes) {
+      ctx.fillStyle = node === hoverNode ? alpha(palette.accent, 0.36) : alpha(palette.ink, 0.08);
+      ctx.beginPath(); ctx.roundRect(node.x - 24, node.y - 24, 48, 48, 12); ctx.fill();
+      ctx.strokeStyle = node.tower ? palette.good : alpha(palette.ink, 0.32); ctx.lineWidth = 2; ctx.stroke();
+    }
+  }
+
+  function drawTowers() {
+    for (const tower of towers) {
+      ctx.fillStyle = palette.good; ctx.beginPath(); ctx.arc(tower.x, tower.y, tower.r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = palette.ink; ctx.lineWidth = 3; ctx.stroke();
+      text(String(tower.level), tower.x, tower.y, 14, palette.backgroundA, "center");
+    }
+  }
+
+  function drawEnemies() {
+    for (const e of enemies) {
+      ctx.fillStyle = e.kind === "tank" ? palette.bad : e.kind === "swarm" ? palette.accent : palette.ink;
+      ctx.beginPath(); ctx.roundRect(e.x - 18, e.y - 18, 36, 36, 10); ctx.fill();
+      ctx.fillStyle = alpha(palette.backgroundA, 0.9); ctx.fillRect(e.x - 18, e.y - 28, 36, 5);
+      ctx.fillStyle = palette.good; ctx.fillRect(e.x - 18, e.y - 28, 36 * Math.max(0, e.hp / e.maxHp), 5);
+    }
+  }
+
+  function drawBullets() {
+    ctx.fillStyle = palette.accent;
+    for (const b of bullets) { ctx.beginPath(); ctx.arc(b.x, b.y, 5, 0, Math.PI * 2); ctx.fill(); }
+  }
+
+  function drawFx() {
+    for (const p of particles) { ctx.globalAlpha = Math.max(0, p.life * 2); ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); }
+    ctx.globalAlpha = 1;
+    for (const f of floats) { ctx.globalAlpha = Math.max(0, f.life); text(f.text, f.x, f.y, 16, f.color, "center"); }
+    ctx.globalAlpha = 1;
+  }
+
+  function hud() {
+    if (state === STATE_READY) return;
+    text(SPEC.title, 20, 30, 22, palette.ink, "left");
+    text(S.score + " " + score + "  " + S.best + " " + best, 20, 58, 13, palette.ink, "left");
+    text(S.coins + " " + coins + "  " + S.lives + " " + lives + "  " + S.wave + " " + wave, 20, 84, 13, palette.ink, "left");
+    text(S.time.replace("{n}", Math.ceil(timeLeft)), width - 20, 32, 23, timeLeft < 10 ? palette.bad : palette.ink, "right");
+  }
+
+  function overlay() {
+    ctx.fillStyle = "rgba(0,0,0,.68)"; ctx.fillRect(0, 0, width, height);
+    text(SPEC.title, width / 2, height * 0.42, 36, palette.ink, "center");
+    text(SPEC.roles.objective, width / 2, height * 0.42 + 42, 15, palette.ink, "center");
+    text(state === STATE_OVER ? S.restart : S.start, width / 2, height * 0.42 + 94, 25, palette.accent, "center");
+    if (state === STATE_OVER) text(S.score + " " + score + "  " + S.best + " " + best, width / 2, height * 0.42 + 130, 15, palette.ink, "center");
+  }
+
+  function nearestNode(x, y) {
+    let bestNode = null, bestDist = 9999;
+    for (const node of nodes) {
+      const d = Math.hypot(x - node.x, y - node.y);
+      if (d < 36 && d < bestDist) { bestDist = d; bestNode = node; }
+    }
+    return bestNode;
+  }
+
+  function burst(x, y, color, count, power) {
+    for (let i = 0; i < count; i += 1) {
+      const a = Math.random() * Math.PI * 2, s = Math.random() * power;
+      particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.5, size: 3 + Math.random() * 4, color });
+    }
+  }
+
+  function addFloat(textValue, x, y, color) { floats.push({ text: textValue, x, y, color, life: 0.9 }); }
+  function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+  function trim(list, pred) { for (let i = list.length - 1; i >= 0; i -= 1) if (pred(list[i])) list.splice(i, 1); }
+  function text(value, x, y, size, color, align) { ctx.fillStyle = color; ctx.font = "900 " + size + "px system-ui"; ctx.textAlign = align; ctx.textBaseline = "middle"; ctx.fillText(value, x, y); }
+  function alpha(hex, a) { const n = parseInt(hex.slice(1), 16); return "rgba(" + ((n >> 16) & 255) + "," + ((n >> 8) & 255) + "," + (n & 255) + "," + a + ")"; }
+  function tick(now) { if (!last) last = now; const frame = Math.min(0.05, (now - last) / 1000); last = now; acc += frame; while (acc >= FIXED_DT) { update(FIXED_DT); acc -= FIXED_DT; } render(); requestAnimationFrame(tick); }
+
+  resize();
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

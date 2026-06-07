@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{TITLE}}</title>
+<link rel="icon" href="data:,">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:{{BACKGROUND_A}};color:{{INK}};font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none;user-select:none}
+canvas{display:block;width:100vw;height:100vh;touch-action:none}
+</style>
+</head>
+<body>
+<!--
+GAME_SPEC_ID: {{ID}}
+GAME_KIT: horde-survival
+STYLE_KIT: {{STYLE_KIT}}
+MECHANICS: {{MECHANICS}}
+ENEMY_SET: {{ENEMY_SET}}
+-->
+<canvas id="game" aria-label="{{TITLE}}"></canvas>
+<script>
+(() => {
+  "use strict";
+  const SPEC = {{SPEC_JSON}};
+  const S = SPEC.strings;
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const STATE_READY = "READY";
+  const STATE_PLAYING = "PLAYING";
+  const STATE_LEVEL = "LEVEL";
+  const STATE_OVER = "OVER";
+  const FIXED_DT = 1 / 60;
+  let width = 0, height = 0, dpr = 1, state = STATE_READY, lastTime = 0, acc = 0;
+  let score = 0, best = Number(localStorage.getItem("tgg-" + SPEC.id + "-best") || 0);
+  let timeLeft = SPEC.duration, spawnTimer = 0, fireTimer = 0, combo = 0, comboTimer = 0;
+  let upgradeChoices = [], cardRects = [], shake = 0, flash = 0, toast = "", toastTime = 0;
+  const pointer = { x: 0, y: 0, moved: false };
+  const player = { x: 0, y: 0, tx: 0, ty: 0, r: 27, hp: 5, maxHp: 5, level: 1, xp: 0, xpGoal: 8, invuln: 0, speed: 350, shots: 1, fireDelay: 0.38, magnet: 100 };
+  const enemies = [], bullets = [], xp = [], particles = [], floats = [];
+  const palette = SPEC.palette;
+  const enemyTypes = SPEC.enemyTypes;
+  const upgrades = [
+    { id: "shots", max: 4 },
+    { id: "speed", max: 3 },
+    { id: "fire", max: 4 },
+    { id: "magnet", max: 3 },
+    { id: "heart", max: 3 }
+  ];
+  const upgradeLevels = Object.fromEntries(upgrades.map(u => [u.id, 0]));
+
+  function resize() {
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    width = innerWidth; height = innerHeight;
+    canvas.width = Math.floor(width * dpr); canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + "px"; canvas.style.height = height + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (!pointer.moved) { pointer.x = width / 2; pointer.y = height / 2; }
+    if (state === STATE_READY) { player.x = width / 2; player.y = height / 2; player.tx = player.x; player.ty = player.y; }
+  }
+
+  function reset() {
+    state = STATE_PLAYING; score = 0; timeLeft = SPEC.duration; spawnTimer = 0.2; fireTimer = 0.1; combo = 0; comboTimer = 0; toast = "";
+    enemies.length = bullets.length = xp.length = particles.length = floats.length = 0;
+    Object.assign(player, { x: width / 2, y: height / 2, tx: pointer.moved ? pointer.x : width / 2, ty: pointer.moved ? pointer.y : height / 2, hp: 5, maxHp: 5, level: 1, xp: 0, xpGoal: 8, invuln: 0, speed: 350, shots: 1, fireDelay: 0.38, magnet: 100 });
+    for (const key of Object.keys(upgradeLevels)) upgradeLevels[key] = 0;
+    for (let i = 0; i < 9; i++) spawnEnemy(true);
+  }
+
+  function pointerDown(e) {
+    e.preventDefault(); pointer.moved = true; pointer.x = e.clientX; pointer.y = e.clientY;
+    if (state === STATE_READY || state === STATE_OVER) { reset(); return; }
+    if (state === STATE_LEVEL) { chooseCard(pointer.x, pointer.y); return; }
+    player.tx = pointer.x; player.ty = pointer.y;
+  }
+  function pointerMove(e) {
+    e.preventDefault(); pointer.moved = true; pointer.x = e.clientX; pointer.y = e.clientY;
+    if (state === STATE_PLAYING) { player.tx = pointer.x; player.ty = pointer.y; }
+  }
+  canvas.addEventListener("pointerdown", pointerDown); canvas.addEventListener("pointermove", pointerMove); canvas.addEventListener("pointerup", e => e.preventDefault()); canvas.addEventListener("pointercancel", e => e.preventDefault()); addEventListener("resize", resize);
+
+  function spawnEnemy(opening) {
+    const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)] || "drowsy";
+    const def = enemyDef(type);
+    const side = Math.floor(Math.random() * 4), m = 64; let x = 0, y = 0;
+    if (side === 0) { x = Math.random() * width; y = -m; } else if (side === 1) { x = width + m; y = Math.random() * height; } else if (side === 2) { x = Math.random() * width; y = height + m; } else { x = -m; y = Math.random() * height; }
+    if (opening) { const a = Math.random() * Math.PI * 2, d = 230 + Math.random() * 160; x = player.x + Math.cos(a) * d; y = player.y + Math.sin(a) * d; }
+    const elapsed = SPEC.duration - timeLeft, scale = 1 + elapsed / 80;
+    enemies.push({ x, y, r: def.r, hp: Math.ceil(def.hp * scale * SPEC.tuning.spawnRate), maxHp: Math.ceil(def.hp * scale), speed: def.speed * SPEC.tuning.speed + elapsed * 1.4, type, hit: 0, wind: 0, dash: 0, vx: 0, vy: 0 });
+  }
+  function enemyDef(type) {
+    const defs = {
+      foamling: { r: 15, hp: 1, speed: 110, color: palette.ink, label: "." },
+      drowsy: { r: 22, hp: 2, speed: 82, color: palette.bad, label: "Z" },
+      jitter: { r: 18, hp: 2, speed: 126, color: palette.good, label: "!" },
+      mug: { r: 29, hp: 5, speed: 64, color: palette.accent, label: "M" },
+      charger: { r: 23, hp: 3, speed: 78, color: palette.bad, label: ">" },
+      splitter: { r: 24, hp: 3, speed: 72, color: palette.accent, label: "S" },
+      eliteAlarm: { r: 36, hp: 12, speed: 58, color: palette.accent, label: "E" },
+      bug: { r: 22, hp: 2, speed: 86, color: palette.bad, label: "B" },
+      popup: { r: 24, hp: 3, speed: 70, color: palette.accent, label: "P" },
+      lagSpike: { r: 19, hp: 2, speed: 120, color: palette.good, label: "L" }
+    };
+    return defs[type] || defs.drowsy;
+  }
+
+  function update(dt) {
+    if (state === STATE_READY || state === STATE_OVER) { updateEffects(dt); return; }
+    if (state === STATE_LEVEL) { updateEffects(dt * 0.2); return; }
+    timeLeft -= dt; if (timeLeft <= 0 || player.hp <= 0) return end();
+    movePlayer(dt); player.invuln = Math.max(0, player.invuln - dt); comboTimer = Math.max(0, comboTimer - dt); if (!comboTimer) combo = 0;
+    shake = Math.max(0, shake - dt * 3); flash = Math.max(0, flash - dt * 3); toastTime = Math.max(0, toastTime - dt);
+    spawnTimer -= dt; if (spawnTimer <= 0) { const count = timeLeft < SPEC.duration * 0.35 ? 3 : timeLeft < SPEC.duration * 0.65 ? 2 : 1; for (let i = 0; i < count; i++) spawnEnemy(false); spawnTimer = Math.max(0.12, 0.58 - (SPEC.duration - timeLeft) * 0.008) / SPEC.tuning.spawnRate; }
+    fireTimer -= dt; if (fireTimer <= 0) { fire(); fireTimer = player.fireDelay; }
+    updateEnemies(dt); updateBullets(dt); updateXp(dt); updateEffects(dt);
+  }
+  function movePlayer(dt) {
+    const dx = player.tx - player.x, dy = player.ty - player.y, len = Math.hypot(dx, dy);
+    if (len > 1) { const step = Math.min(len, player.speed * dt); player.x += dx / len * step; player.y += dy / len * step; }
+    player.x = clamp(player.x, player.r + 10, width - player.r - 10); player.y = clamp(player.y, player.r + 78, height - player.r - 12);
+  }
+  function fire() {
+    const target = nearestEnemy(); if (!target) return;
+    const base = Math.atan2(target.y - player.y, target.x - player.x), spread = player.shots === 1 ? 0 : 0.18;
+    for (let i = 0; i < player.shots; i++) { const a = base + (i - (player.shots - 1) / 2) * spread; bullets.push({ x: player.x, y: player.y, vx: Math.cos(a) * 540, vy: Math.sin(a) * 540, r: 7, life: 1.2, damage: 1 }); }
+    burst(player.x, player.y, palette.ink, 5, 90);
+  }
+  function nearestEnemy() { let bestEnemy = null, bestDist = Infinity; for (const e of enemies) { const d = dist(player.x, player.y, e.x, e.y); if (d < bestDist) { bestDist = d; bestEnemy = e; } } return bestEnemy; }
+  function updateEnemies(dt) {
+    for (const e of enemies) {
+      if (e.type === "charger" && dist(e.x, e.y, player.x, player.y) < 250 && e.dash <= 0) { e.wind += dt; if (e.wind > 0.45) { const a = Math.atan2(player.y - e.y, player.x - e.x); e.vx = Math.cos(a) * e.speed * 4; e.vy = Math.sin(a) * e.speed * 4; e.dash = 0.42; e.wind = 0; } }
+      if (e.dash > 0) { e.x += e.vx * dt; e.y += e.vy * dt; e.dash -= dt; } else { const a = Math.atan2(player.y - e.y, player.x - e.x); e.x += Math.cos(a) * e.speed * dt; e.y += Math.sin(a) * e.speed * dt; }
+      e.hit = Math.max(0, e.hit - dt * 5);
+      if (dist(e.x, e.y, player.x, player.y) < e.r + player.r && player.invuln <= 0) { player.hp -= e.type === "eliteAlarm" || e.type === "mug" ? 2 : 1; player.invuln = 0.8; combo = 0; shake = 0.4; flash = 0.5; addFloat("-HP", player.x, player.y - 40, palette.bad); }
+    }
+  }
+  function updateBullets(dt) {
+    for (const b of bullets) { b.x += b.vx * dt; b.y += b.vy * dt; b.life -= dt; }
+    for (const b of bullets) for (const e of enemies) if (b.life > 0 && dist(b.x, b.y, e.x, e.y) < b.r + e.r) { e.hp -= b.damage; e.hit = 1; b.life = 0; burst(b.x, b.y, palette.ink, 7, 120); if (e.hp <= 0) kill(e); break; }
+    trim(bullets, b => b.life <= 0 || b.x < -80 || b.x > width + 80 || b.y < -80 || b.y > height + 80); trim(enemies, e => e.hp <= 0);
+  }
+  function kill(e) { combo++; comboTimer = 2.4; score += Math.round(10 * comboMult() * SPEC.tuning.scoreMultiplier); addFloat("+" + Math.round(10 * comboMult() * SPEC.tuning.scoreMultiplier), e.x, e.y - 24, palette.ink); burst(e.x, e.y, enemyDef(e.type).color, 18, 180); for (let i = 0; i < (e.type === "eliteAlarm" ? 6 : e.type === "mug" ? 3 : 1); i++) xp.push({ x: e.x, y: e.y, r: 8, vx: (Math.random() - 0.5) * 70, vy: (Math.random() - 0.5) * 70, life: 8 }); if (e.type === "splitter") for (let i = 0; i < 2; i++) enemies.push({ x: e.x + (Math.random() - 0.5) * 30, y: e.y + (Math.random() - 0.5) * 30, r: 13, hp: 1, maxHp: 1, speed: 130, type: "foamling", hit: 0, wind: 0, dash: 0, vx: 0, vy: 0 }); }
+  function updateXp(dt) {
+    for (const orb of xp) { const d = dist(orb.x, orb.y, player.x, player.y); if (d < player.magnet) { const a = Math.atan2(player.y - orb.y, player.x - orb.x); orb.vx += Math.cos(a) * 500 * dt; orb.vy += Math.sin(a) * 500 * dt; } orb.x += orb.vx * dt; orb.y += orb.vy * dt; orb.vx *= 0.96; orb.vy *= 0.96; orb.life -= dt; if (d < player.r + orb.r) { orb.life = 0; player.xp += 1; score += 2; if (player.xp >= player.xpGoal) levelUp(); } }
+    trim(xp, o => o.life <= 0);
+  }
+  function levelUp() { state = STATE_LEVEL; player.xp -= player.xpGoal; player.level++; player.xpGoal = Math.ceil(player.xpGoal * 1.35 + 4); upgradeChoices = rollUpgrades(); toast = S.levelUp; toastTime = 1.2; burst(player.x, player.y, palette.accent, 38, 240); }
+  function rollUpgrades() { return upgrades.filter(u => upgradeLevels[u.id] < u.max).sort(() => Math.random() - 0.5).slice(0, 3); }
+  function chooseCard(x, y) { for (const c of cardRects) if (x >= c.x && x <= c.x + c.w && y >= c.y && y <= c.y + c.h) { const u = c.upgrade; upgradeLevels[u.id]++; if (u.id === "shots") player.shots++; if (u.id === "speed") player.speed += 42; if (u.id === "fire") player.fireDelay = Math.max(0.14, player.fireDelay - 0.05); if (u.id === "magnet") player.magnet += 45; if (u.id === "heart") { player.maxHp++; player.hp = Math.min(player.maxHp, player.hp + 2); } state = STATE_PLAYING; return; } }
+  function updateEffects(dt) { for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 90 * dt; p.life -= dt; } for (const f of floats) { f.y += f.vy * dt; f.life -= dt; } trim(particles, p => p.life <= 0); trim(floats, f => f.life <= 0); }
+  function end() { state = STATE_OVER; best = Math.max(best, score); localStorage.setItem("tgg-" + SPEC.id + "-best", String(best)); }
+
+  function render() {
+    ctx.save(); if (shake > 0) ctx.translate((Math.random() - 0.5) * shake * 18, (Math.random() - 0.5) * shake * 18);
+    background(); drawOrbs(); drawEnemies(); drawBullets(); drawPlayer(); drawEffects(); hud();
+    if (flash > 0) { ctx.fillStyle = hexAlpha(palette.bad, flash * 0.18); ctx.fillRect(0, 0, width, height); }
+    if (state === STATE_READY || state === STATE_OVER) overlay(); if (state === STATE_LEVEL) levelOverlay(); ctx.restore();
+  }
+  function background() { const g = ctx.createLinearGradient(0, 0, width, height); g.addColorStop(0, palette.backgroundA); g.addColorStop(1, palette.backgroundB); ctx.fillStyle = g; ctx.fillRect(0, 0, width, height); ctx.fillStyle = "rgba(255,255,255,.055)"; for (let y = 0; y < height; y += 42) ctx.fillRect(0, y, width, 1); }
+  function drawEnemies() { for (const e of enemies) { const def = enemyDef(e.type); ctx.save(); ctx.translate(e.x, e.y); ctx.scale(1 + e.hit * 0.12, 1 + e.hit * 0.12); ctx.fillStyle = "rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(5, 10, e.r * 1.1, e.r * .7, 0, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = def.color; ctx.beginPath(); ctx.roundRect(-e.r, -e.r, e.r * 2, e.r * 2, e.r * .42); ctx.fill(); ctx.strokeStyle = palette.ink; ctx.lineWidth = e.type === "eliteAlarm" ? 5 : 3; ctx.stroke(); ctx.fillStyle = palette.backgroundA; ctx.font = `900 ${Math.max(14, e.r)}px system-ui`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(def.label, 0, 0); ctx.restore(); } }
+  function drawBullets() { ctx.fillStyle = palette.ink; for (const b of bullets) { ctx.beginPath(); ctx.ellipse(b.x, b.y, b.r * 1.7, b.r, 0, 0, Math.PI * 2); ctx.fill(); } }
+  function drawOrbs() { ctx.fillStyle = palette.good; for (const o of xp) { ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2); ctx.fill(); } }
+  function drawPlayer() { ctx.save(); ctx.translate(player.x, player.y); ctx.fillStyle = palette.accent; ctx.beginPath(); ctx.ellipse(0, 0, player.r * .92, player.r * 1.18, -.34, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = palette.ink; ctx.lineWidth = 3; ctx.stroke(); ctx.restore(); }
+  function drawEffects() { for (const p of particles) { ctx.globalAlpha = Math.max(0, p.life * 2); ctx.fillStyle = p.color; ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size); } ctx.globalAlpha = 1; for (const f of floats) { ctx.globalAlpha = Math.max(0, f.life); ctx.fillStyle = f.color; ctx.font = "900 16px system-ui"; ctx.textAlign = "center"; ctx.fillText(f.text, f.x, f.y); } ctx.globalAlpha = 1; }
+  function hud() { if (state === STATE_READY) return; panel(14, 12, 240, 88); text(SPEC.title, 28, 34, 19, palette.ink, "left"); text(`${S.score} ${score}  ${S.best} ${best}`, 28, 62, 13, palette.ink, "left"); bar(28, 84, 190, 8, player.hp / player.maxHp, palette.good); panel(width - 224, 12, 210, 88); text(formatTime(timeLeft), width - 34, 34, 22, timeLeft < 10 ? palette.bad : palette.ink, "right"); text(`${S.level} ${player.level} x${comboMult()} ${combo} ${S.combo}`, width - 34, 62, 13, palette.ink, "right"); bar(width - 204, 84, 170, 8, player.xp / player.xpGoal, palette.accent); }
+  function overlay() { ctx.fillStyle = "rgba(0,0,0,.68)"; ctx.fillRect(0, 0, width, height); text(SPEC.title, width / 2, height * .42, 36, palette.ink, "center"); text(SPEC.roles.player + " / " + SPEC.roles.objective, width / 2, height * .42 + 40, 15, palette.ink, "center"); text(state === STATE_OVER ? S.restart : S.start, width / 2, height * .42 + 92, 24, palette.accent, "center"); if (state === STATE_OVER) text(`${S.score} ${score}  ${S.best} ${best}`, width / 2, height * .42 + 128, 15, palette.ink, "center"); }
+  function levelOverlay() { ctx.fillStyle = "rgba(0,0,0,.72)"; ctx.fillRect(0, 0, width, height); text(`${S.levelUp}: ${S.chooseCard}`, width / 2, height * .24, 30, palette.ink, "center"); cardRects = []; const cw = Math.min(220, width * .27), ch = 180, gap = 18, total = upgradeChoices.length * cw + (upgradeChoices.length - 1) * gap; let x = width / 2 - total / 2, y = height * .38; for (const u of upgradeChoices) { const label = upgradeLabel(u); cardRects.push({ x, y, w: cw, h: ch, upgrade: u }); panel(x, y, cw, ch); ctx.strokeStyle = palette.accent; ctx.lineWidth = 3; ctx.strokeRect(x + 4, y + 4, cw - 8, ch - 8); text(label[0], x + cw / 2, y + 48, 21, palette.ink, "center"); text(`${S.level} ${upgradeLevels[u.id]}/${u.max}`, x + cw / 2, y + 80, 13, palette.accent, "center"); wrap(label[1], x + 22, y + 110, cw - 44, 17, palette.ink); x += cw + gap; } }
+  function upgradeLabel(upgrade) { return S.upgrades && S.upgrades[upgrade.id] ? S.upgrades[upgrade.id] : [upgrade.id, upgrade.id]; }
+  function formatTime(value) { return S.time.replace("{n}", Math.ceil(value)); }
+  function panel(x, y, w, h) { ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.beginPath(); ctx.roundRect(x, y, w, h, 15); ctx.fill(); }
+  function bar(x, y, w, h, ratio, color) { ctx.fillStyle = "rgba(255,255,255,.16)"; ctx.beginPath(); ctx.roundRect(x, y, w, h, h / 2); ctx.fill(); ctx.fillStyle = color; ctx.beginPath(); ctx.roundRect(x, y, w * clamp(ratio, 0, 1), h, h / 2); ctx.fill(); }
+  function text(s, x, y, size, color, align) { ctx.fillStyle = color; ctx.font = `900 ${size}px system-ui`; ctx.textAlign = align; ctx.textBaseline = "middle"; ctx.fillText(s, x, y); }
+  function wrap(s, x, y, w, lh, color) { ctx.fillStyle = color; ctx.font = "700 13px system-ui"; ctx.textAlign = "left"; ctx.textBaseline = "top"; let line = "", yy = y; for (const ch of s) { const next = line + ch; if (ctx.measureText(next).width > w && line) { ctx.fillText(line, x, yy); line = ch; yy += lh; } else line = next; } if (line) ctx.fillText(line, x, yy); }
+  function burst(x, y, color, count, power) { for (let i = 0; i < count; i++) { const a = Math.random() * Math.PI * 2, s = 30 + Math.random() * power; particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: .35 + Math.random() * .3, size: 3 + Math.random() * 5, color }); } }
+  function addFloat(text, x, y, color) { floats.push({ text, x, y, vy: -42, life: .9, color }); }
+  function comboMult() { return Math.min(5, 1 + Math.floor(combo / 12)); }
+  function trim(list, pred) { for (let i = list.length - 1; i >= 0; i--) if (pred(list[i])) list.splice(i, 1); }
+  function dist(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+  function hexAlpha(hex, a) { const n = parseInt(hex.slice(1), 16); return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; }
+  function tick(now) { if (!lastTime) lastTime = now; const frame = Math.min(.05, (now - lastTime) / 1000); lastTime = now; acc += frame; while (acc >= FIXED_DT) { update(FIXED_DT); acc -= FIXED_DT; } render(); requestAnimationFrame(tick); }
+  resize(); requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

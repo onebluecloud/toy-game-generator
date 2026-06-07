@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="{{LANG}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>{{TITLE}}</title><link rel="icon" href="data:,"><style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:{{BACKGROUND_A}};color:{{INK}};font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none;user-select:none}canvas{display:block;width:100vw;height:100vh;touch-action:none}
+</style></head><body>
+<!--
+GAME_SPEC_ID: {{ID}}
+GAME_KIT: rhythm-tap
+STYLE_KIT: {{STYLE_KIT}}
+MECHANICS: {{MECHANICS}}
+ENEMY_SET: {{ENEMY_SET}}
+-->
+<canvas id="game" aria-label="{{TITLE}}"></canvas><script>
+(() => {
+"use strict";
+const SPEC = {{SPEC_JSON}},S=SPEC.strings,canvas=document.getElementById("game"),ctx=canvas.getContext("2d"),READY="READY",PLAYING="PLAYING",OVER="OVER",FIXED_DT=1/60;
+let width=0,height=0,dpr=1,state=READY,last=0,acc=0,score=0,best=Number(localStorage.getItem("tgg-"+SPEC.id+"-best")||0),timeLeft=SPEC.duration,combo=0,hp=8,spawnTimer=0,flash=0,notice="",noticeTime=0;
+const p=SPEC.palette,notes=[],particles=[],floats=[];let lanes=[],hitY=0;
+function resize(){dpr=Math.max(1,Math.min(2,devicePixelRatio||1));width=innerWidth;height=innerHeight;canvas.width=Math.floor(width*dpr);canvas.height=Math.floor(height*dpr);canvas.style.width=width+"px";canvas.style.height=height+"px";ctx.setTransform(dpr,0,0,dpr,0,0);lanes=[width*.25,width*.42,width*.58,width*.75];hitY=height*.76}
+function reset(){state=PLAYING;score=0;timeLeft=SPEC.duration;combo=0;hp=8;spawnTimer=.4;notes.length=particles.length=floats.length=0;notice=""}
+function pointerdown(e){e.preventDefault();if(state===READY||state===OVER){reset();return}const lane=nearestLane(e.clientX);hit(lane)}
+function pointermove(e){e.preventDefault()}function pointerup(e){e.preventDefault()}
+canvas.addEventListener("pointerdown",pointerdown);canvas.addEventListener("pointermove",pointermove);canvas.addEventListener("pointerup",pointerup);canvas.addEventListener("pointercancel",pointerup);addEventListener("resize",resize);
+function nearestLane(x){let best=0,d=9999;for(let i=0;i<lanes.length;i++){const dd=Math.abs(lanes[i]-x);if(dd<d){d=dd;best=i}}return best}
+function hit(lane){let best=null,dist=9999;for(const n of notes)if(!n.hit&&n.lane===lane){const d=Math.abs(n.y-hitY);if(d<dist){dist=d;best=n}}if(!best||dist>70){miss(S.miss);return}best.hit=true;const perfect=dist<24,gain=perfect?40:18;combo++;score+=Math.round(gain*(1+Math.floor(combo/8))*SPEC.tuning.scoreMultiplier);notice=perfect?S.perfect:S.good;noticeTime=.7;addFloat(notice,lanes[lane],hitY-36,perfect?p.accent:p.good);burst(lanes[lane],hitY,perfect?p.accent:p.good,perfect?22:12)}
+function miss(label){combo=0;hp--;flash=.24;notice=label;noticeTime=.7;if(hp<=0)over()}
+function spawn(){notes.push({lane:Math.floor(Math.random()*lanes.length),y:-40,speed:(190+Math.random()*80)*SPEC.tuning.speed,hit:false})}
+function update(dt){if(state!==PLAYING){updateFx(dt);return}timeLeft-=dt;if(timeLeft<=0)over();spawnTimer-=dt;if(spawnTimer<=0){spawn();spawnTimer=Math.max(.32,.78-(SPEC.duration-timeLeft)*.006)/SPEC.tuning.spawnRate}for(const n of notes){n.y+=n.speed*dt;if(!n.hit&&n.y>hitY+86){n.hit=true;miss(S.miss)}}trim(notes,n=>n.hit&&n.y>hitY+120);flash=Math.max(0,flash-dt*3);noticeTime=Math.max(0,noticeTime-dt);updateFx(dt)}
+function over(){state=OVER;best=Math.max(best,score);localStorage.setItem("tgg-"+SPEC.id+"-best",String(best))}
+function updateFx(dt){for(const q of particles){q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt}for(const f of floats){f.y-=42*dt;f.life-=dt}trim(particles,q=>q.life<=0);trim(floats,f=>f.life<=0)}
+function render(){ctx.save();bg();lanesDraw();notesDraw();fx();hud();if(flash){ctx.fillStyle=alpha(p.bad,flash*.25);ctx.fillRect(0,0,width,height)}if(state!==PLAYING)overlay();ctx.restore()}
+function bg(){ctx.fillStyle=p.backgroundA;ctx.fillRect(0,0,width,height);ctx.strokeStyle=alpha(p.accent,.08);for(let y=0;y<height;y+=34){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke()}}
+function lanesDraw(){for(const x of lanes){ctx.fillStyle=alpha(p.ink,.05);ctx.fillRect(x-42,0,84,height);ctx.strokeStyle=alpha(p.ink,.14);ctx.strokeRect(x-42,0,84,height)}ctx.strokeStyle=p.accent;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(width*.16,hitY);ctx.lineTo(width*.84,hitY);ctx.stroke();if(noticeTime>0)text(notice,width/2,hitY-70,28,notice===S.perfect?p.accent:notice===S.good?p.good:p.bad,"center")}
+function notesDraw(){for(const n of notes){ctx.fillStyle=p.good;ctx.beginPath();ctx.roundRect(lanes[n.lane]-30,n.y-16,60,32,10);ctx.fill();ctx.fillStyle=p.backgroundA;text("TAP",lanes[n.lane],n.y,13,p.backgroundA,"center")}}
+function hud(){if(state===READY)return;text(SPEC.title,20,30,22,p.ink,"left");text(S.score+" "+score+" "+S.best+" "+best,20,58,13,p.ink,"left");text(S.hp+" "+hp+" "+S.combo+" "+combo,width-20,32,15,p.ink,"right");text(S.time.replace("{n}",Math.ceil(timeLeft)),width-20,60,22,timeLeft<10?p.bad:p.ink,"right")}
+function fx(){for(const q of particles){ctx.globalAlpha=q.life*2;ctx.fillStyle=q.color;ctx.fillRect(q.x,q.y,q.size,q.size)}ctx.globalAlpha=1;for(const f of floats){ctx.globalAlpha=f.life;text(f.text,f.x,f.y,16,f.color,"center")}ctx.globalAlpha=1}
+function overlay(){ctx.fillStyle="rgba(0,0,0,.70)";ctx.fillRect(0,0,width,height);text(SPEC.title,width/2,height*.43,36,p.ink,"center");text(SPEC.roles.objective,width/2,height*.43+42,15,p.ink,"center");text(state===OVER?S.restart:S.start,width/2,height*.43+94,25,p.accent,"center");if(state===OVER)text(S.score+" "+score+" "+S.best+" "+best,width/2,height*.43+130,15,p.ink,"center")}
+function burst(x,y,c,n){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=40+Math.random()*130;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.5,size:3+Math.random()*5,color:c})}}function addFloat(t,x,y,c){floats.push({text:t,x,y,life:.9,color:c})}function trim(a,pred){for(let i=a.length-1;i>=0;i--)if(pred(a[i]))a.splice(i,1)}function alpha(hex,a){const n=parseInt(hex.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}function text(t,x,y,s,c,a){ctx.fillStyle=c;ctx.font=`900 ${s}px system-ui`;ctx.textAlign=a;ctx.textBaseline="middle";ctx.fillText(t,x,y)}
+function tick(now){if(!last)last=now;const frame=Math.min(.05,(now-last)/1000);last=now;acc+=frame;while(acc>=FIXED_DT){update(FIXED_DT);acc-=FIXED_DT}render();requestAnimationFrame(tick)}resize();requestAnimationFrame(tick);
+})();
+</script></body></html>

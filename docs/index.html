@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Toy Game Generator · 输入一个词，秒生成一个能玩的小游戏</title>
+<meta name="description" content="输入任意一个词，几秒生成一个点开就能玩的网页小游戏。整套生成跑在你的浏览器里，无后端、不上传。">
+<meta property="og:title" content="输入一个词，秒生成一个能玩的小游戏">
+<meta property="og:description" content="深海考古、算命、电脑病毒、退休规划……任意主题，几秒出一个能玩的小游戏。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="dot"></span> Toy Game Generator</div>
+    <h1 data-i18n="h1">输入一个词，<br>秒生成一个能玩的小游戏</h1>
+    <p class="sub" data-i18n="sub">深海考古、算命、电脑病毒、退休规划…… 任意主题，几秒出一个点开就能玩的网页小游戏。</p>
+    <p class="honest" data-i18n="honest">生成逻辑 100% 跑在你的浏览器里，无后端、不上传任何东西。</p>
+  </header>
+
+  <section class="panel">
+    <div class="langrow">
+      <div class="seg" role="tablist" aria-label="language">
+        <button id="lang-zh" class="on" type="button">中文</button>
+        <button id="lang-en" type="button">EN</button>
+      </div>
+    </div>
+
+    <form id="form" class="inputrow" autocomplete="off">
+      <input id="theme" name="theme" type="text" inputmode="text" maxlength="40"
+             placeholder="输入任意词，比如：深海考古" aria-label="theme">
+      <button class="btn" id="go" type="submit" data-i18n="go">生成游戏</button>
+    </form>
+    <div class="toolrow">
+      <button class="btn ghost" id="random" type="button" data-i18n="random">🎲 随机一个</button>
+    </div>
+
+    <div class="chips" id="chips">
+      <div class="chips-label" data-i18n="tryLabel">试试这些：</div>
+    </div>
+  </section>
+
+  <section class="result panel" id="result" hidden>
+    <div class="meta">
+      <span class="title" id="gameTitle"></span>
+      <span class="tag" id="gameKit"></span>
+    </div>
+    <div class="stage"><iframe id="frame" title="game" allow="fullscreen"></iframe></div>
+    <div class="actions">
+      <button class="btn ghost" id="fullscreen" type="button" data-i18n="fullscreen">⛶ 全屏试玩</button>
+      <button class="btn ghost" id="download" type="button" data-i18n="download">⬇ 下载 HTML</button>
+      <button class="btn" id="again" type="button" data-i18n="again">↻ 换一个</button>
+    </div>
+    <p class="hint" data-i18n="playHint">手机端直接在上方触屏游玩；点「全屏试玩」更过瘾。</p>
+  </section>
+
+  <footer>
+    <p data-i18n="what">它是什么：不是「AI 现写代码」，而是 11 个手工打磨的玩法模板 + 你的主题词，从 8640 个组合里挑最契合的一个，换皮换文案换节奏。玩法本体是验证过「能玩」的代码。</p>
+    <p>
+      <a href="https://github.com/onebluecloud/toy-game-generator" target="_blank" rel="noopener">GitHub 源码</a>
+      &nbsp;·&nbsp; MIT License
+    </p>
+  </footer>
+</div>
+
+<script src="generator-core.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

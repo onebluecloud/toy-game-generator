@@ -1,0 +1,92 @@
+[
+  {
+    "id": "toy-diorama",
+    "label": "Toy Diorama",
+    "bestFor": ["coffee", "toy", "table", "cute", "object"],
+    "colors": {
+      "backgroundA": "#211610",
+      "backgroundB": "#6b3f25",
+      "accent": "#f59e0b",
+      "good": "#34d399",
+      "bad": "#fb7185",
+      "ink": "#fff7df"
+    },
+    "texture": "chunky shapes, soft shadows, tabletop lighting",
+    "baseScore": 9
+  },
+  {
+    "id": "pixel-neon",
+    "label": "Pixel Neon",
+    "bestFor": ["computer", "virus", "racing", "cyber", "night"],
+    "colors": {
+      "backgroundA": "#07111f",
+      "backgroundB": "#111827",
+      "accent": "#22d3ee",
+      "good": "#a3e635",
+      "bad": "#fb7185",
+      "ink": "#f8fafc"
+    },
+    "texture": "grid, scanlines, square particles, neon glow",
+    "baseScore": 9
+  },
+  {
+    "id": "paper-cut",
+    "label": "Paper Cut",
+    "bestFor": ["adventure", "forest", "book", "map", "cozy"],
+    "colors": {
+      "backgroundA": "#3f2a1d",
+      "backgroundB": "#b87942",
+      "accent": "#f2d28d",
+      "good": "#60a5fa",
+      "bad": "#ef4444",
+      "ink": "#fff6d4"
+    },
+    "texture": "layered silhouettes, warm paper, flat shadows",
+    "baseScore": 8
+  },
+  {
+    "id": "occult-archive",
+    "label": "Occult Archive",
+    "bestFor": ["fortune", "divination", "oracle", "tarot", "astrology", "bazi", "mystery", "premium", "dark", "算命", "占卜", "塔罗", "星盘", "八字", "命理"],
+    "colors": {
+      "backgroundA": "#130f0d",
+      "backgroundB": "#211916",
+      "accent": "#c9a35b",
+      "good": "#87a978",
+      "bad": "#9f3937",
+      "ink": "#eadfc8"
+    },
+    "texture": "dark paper, brass ruling, restrained ritual UI, archival serif labels",
+    "baseScore": 11
+  },
+  {
+    "id": "noir-ledger",
+    "label": "Noir Ledger",
+    "bestFor": ["detective", "mystery", "case", "risk", "consulting", "premium", "推理", "侦探", "案件", "咨询"],
+    "colors": {
+      "backgroundA": "#101315",
+      "backgroundB": "#1f2527",
+      "accent": "#d2b36f",
+      "good": "#8db596",
+      "bad": "#b7524b",
+      "ink": "#ece4d6"
+    },
+    "texture": "black case files, thin gold dividers, evidence-board restraint",
+    "baseScore": 10
+  },
+  {
+    "id": "clinical-ritual",
+    "label": "Clinical Ritual",
+    "bestFor": ["diagnosis", "consulting", "analysis", "premium", "serious", "诊断", "咨询", "分析"],
+    "colors": {
+      "backgroundA": "#121817",
+      "backgroundB": "#26302d",
+      "accent": "#d6b15f",
+      "good": "#7fb39d",
+      "bad": "#b55f5a",
+      "ink": "#edf0e8"
+    },
+    "texture": "diagnostic panels, quiet ritual marks, sober consulting dashboard",
+    "baseScore": 9
+  }
+]

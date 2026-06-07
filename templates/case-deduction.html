@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{TITLE}}</title>
+<link rel="icon" href="data:,">
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:{{BACKGROUND_A}};color:{{INK}};font-family:Georgia,"Times New Roman",serif;touch-action: none;user-select:none}
+canvas{display:block;width:100vw;height:100vh;touch-action: none}
+</style>
+</head>
+<body>
+<!--
+GAME_INFERENCE
+GAME_SPEC_ID: {{ID}}
+GAME_KIT: case-deduction
+STYLE_KIT: {{STYLE_KIT}}
+MECHANICS: {{MECHANICS}}
+ENEMY_SET: {{ENEMY_SET}}
+SECONDARY_TWIST: trust-pressure
+-->
+<canvas id="game" aria-label="{{TITLE}}"></canvas>
+<script>
+(() => {
+  "use strict";
+
+  const SPEC = {{SPEC_JSON}};
+  const S = SPEC.strings;
+  const canvas = document.getElementById("game");
+  const ctx = canvas.getContext("2d");
+  const STATE_READY = "READY";
+  const STATE_PLAYING = "PLAYING";
+  const STATE_OVER = "OVER";
+  const GAME_SECONDS = SPEC.duration;
+  const FIXED_DT = 1 / 60;
+
+  const THEME = {
+    title: SPEC.title,
+    instruction: S.instruction,
+    bg: SPEC.palette.backgroundA,
+    panel: SPEC.palette.backgroundB,
+    paper: SPEC.palette.backgroundB,
+    paper2: "#47362b",
+    line: "#8b6f4e",
+    ink: SPEC.palette.ink,
+    dim: "#a99574",
+    accent: SPEC.palette.accent,
+    red: SPEC.palette.bad,
+    green: SPEC.palette.good
+  };
+
+  const cases = [
+    {
+      client: "Case 01 / merchant",
+      question: "A quiet loss follows public success.",
+      clues: [
+        { id: "ledger", title: "late ledger", text: "Profit rose, sleep fell.", weight: { career: 2, money: 1 } },
+        { id: "door", title: "closed door", text: "Two offers arrived together.", weight: { career: 2, relation: -1 } },
+        { id: "ash", title: "warm ash", text: "An old promise still burns.", weight: { relation: 2, money: -1 } }
+      ],
+      answer: "career"
+    },
+    {
+      client: "Case 02 / traveler",
+      question: "A return is desired, but the road resists.",
+      clues: [
+        { id: "map", title: "creased map", text: "The route bends back twice.", weight: { travel: 2, relation: 1 } },
+        { id: "thread", title: "red thread", text: "A name was kept hidden.", weight: { relation: 2, travel: -1 } },
+        { id: "ticket", title: "unused ticket", text: "Delay protects the outcome.", weight: { travel: 2, money: -1 } }
+      ],
+      answer: "travel"
+    },
+    {
+      client: "Case 03 / heir",
+      question: "The house is divided by an unseen debt.",
+      clues: [
+        { id: "seal", title: "broken seal", text: "An agreement was opened early.", weight: { money: 2, relation: -1 } },
+        { id: "cup", title: "shared cup", text: "Kindness hides calculation.", weight: { relation: 2, money: 1 } },
+        { id: "window", title: "north window", text: "The safest path is restraint.", weight: { money: 2, career: -1 } }
+      ],
+      answer: "money"
+    }
+  ];
+
+  const hypotheses = [
+    { id: "career", label: "Career Pivot", desc: "Change the role, not the ambition." },
+    { id: "relation", label: "Hidden Bond", desc: "The true force is obligation." },
+    { id: "money", label: "Debt Pattern", desc: "Value is leaking through delay." },
+    { id: "travel", label: "Delayed Return", desc: "Movement must wait for clarity." }
+  ];
+
+  let width = 0, height = 0, dpr = 1;
+  let state = STATE_READY;
+  let lastTime = 0, accumulator = 0;
+  let score = 0, best = readBest(), timeLeft = GAME_SECONDS, trust = 70, certainty = 0;
+  let caseIndex = 0, currentCase = cases[0], selectedClues = [], hypothesisScores = {}, dragging = null;
+  let shake = 0, flash = 0, overlayEase = 0, notice = "", noticeTime = 0;
+  const clueRects = [], ledgerRects = [], hypothesisRects = [], particles = [], lines = [];
+
+  function readBest() {
+    const raw = localStorage.getItem("tgg-" + SPEC.id + "-best");
+    return raw ? Number(raw) || 0 : 0;
+  }
+
+  function writeBest() {
+    if (score > best) {
+      best = score;
+      localStorage.setItem("tgg-" + SPEC.id + "-best", String(best));
+    }
+  }
+
+  function resizeCanvas() {
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    layout();
+  }
+
+  function layout() {
+    clueRects.length = 0;
+    ledgerRects.length = 0;
+    hypothesisRects.length = 0;
+    const sideW = Math.min(270, width * 0.28);
+    const top = Math.max(124, height * 0.18);
+    for (let i = 0; i < 3; i += 1) {
+      clueRects.push({ x: 28, y: top + i * 118, w: sideW, h: 92, clue: currentCase.clues[i] });
+      ledgerRects.push({ x: width * 0.42 + i * Math.min(112, width * 0.11), y: height * 0.48, w: 90, h: 78, clue: selectedClues[i] || null });
+    }
+    const hW = Math.min(210, width * 0.22);
+    const startX = width - hW - 28;
+    for (let i = 0; i < hypotheses.length; i += 1) {
+      hypothesisRects.push({ x: startX, y: top + i * 92, w: hW, h: 72, hypothesis: hypotheses[i] });
+    }
+  }
+
+  function resetGame() {
+    state = STATE_PLAYING;
+    score = 0;
+    timeLeft = GAME_SECONDS;
+    trust = 70;
+    certainty = 0;
+    caseIndex = 0;
+    particles.length = 0;
+    lines.length = 0;
+    notice = "";
+    noticeTime = 0;
+    loadCase(0);
+  }
+
+  function loadCase(index) {
+    currentCase = cases[index % cases.length];
+    selectedClues = [];
+    hypothesisScores = Object.fromEntries(hypotheses.map(h => [h.id, 0]));
+    certainty = 0;
+    dragging = null;
+    layout();
+  }
+
+  function onPointerDown(event) {
+    event.preventDefault();
+    const x = event.clientX;
+    const y = event.clientY;
+    if (state === STATE_READY || state === STATE_OVER) {
+      resetGame();
+      return;
+    }
+    if (state !== STATE_PLAYING) return;
+
+    for (const rect of clueRects) {
+      if (inside(x, y, rect) && !selectedClues.includes(rect.clue)) {
+        dragging = { clue: rect.clue, x, y, from: rect };
+        return;
+      }
+    }
+    for (const rect of hypothesisRects) {
+      if (inside(x, y, rect)) {
+        chooseHypothesis(rect.hypothesis);
+        return;
+      }
+    }
+  }
+
+  function onPointerMove(event) {
+    event.preventDefault();
+    if (dragging) {
+      dragging.x = event.clientX;
+      dragging.y = event.clientY;
+    }
+  }
+
+  function onPointerUp(event) {
+    event.preventDefault();
+    if (!dragging || state !== STATE_PLAYING) {
+      dragging = null;
+      return;
+    }
+    const hitLedger = ledgerRects.some(rect => inside(dragging.x, dragging.y, rect));
+    if (hitLedger) addClue(dragging.clue, dragging.x, dragging.y);
+    dragging = null;
+  }
+
+  canvas.addEventListener("pointerdown", onPointerDown);
+  canvas.addEventListener("pointermove", onPointerMove);
+  canvas.addEventListener("pointerup", onPointerUp);
+  canvas.addEventListener("pointercancel", onPointerUp);
+  window.addEventListener("resize", resizeCanvas);
+
+  function addClue(clue, x, y) {
+    if (selectedClues.includes(clue)) return;
+    selectedClues.push(clue);
+    for (const [key, value] of Object.entries(clue.weight)) {
+      hypothesisScores[key] = (hypothesisScores[key] || 0) + value;
+    }
+    certainty = Math.min(100, certainty + 24 + Math.max(0, clue.weight[currentCase.answer] || 0) * 8);
+    score += 8;
+    notice = S.filed;
+    noticeTime = 1;
+    addLine(clue.id);
+    burst(x, y, THEME.accent, 14);
+    layout();
+  }
+
+  function chooseHypothesis(hypothesis) {
+    if (selectedClues.length < 2) {
+      trust = Math.max(0, trust - 8);
+      flash = 0.35;
+      shake = 0.2;
+      notice = S.tooLittleEvidence;
+      noticeTime = 1.1;
+      return;
+    }
+    const right = hypothesis.id === currentCase.answer;
+    const confidence = Math.max(0, hypothesisScores[hypothesis.id] || 0);
+    if (right) {
+      const gain = 55 + confidence * 12 + Math.ceil(trust / 5);
+      score += gain;
+      trust = Math.min(100, trust + 12);
+      certainty = 100;
+      notice = S.readingSealed + " +" + gain;
+      noticeTime = 1.2;
+      burst(width * 0.52, height * 0.37, THEME.green, 34);
+      caseIndex += 1;
+      setTimeout(() => { if (state === STATE_PLAYING) loadCase(caseIndex); }, 420);
+    } else {
+      timeLeft = Math.max(0, timeLeft - 5);
+      trust = Math.max(0, trust - 18);
+      certainty = Math.max(0, certainty - 18);
+      flash = 0.5;
+      shake = 0.32;
+      notice = S.contradiction;
+      noticeTime = 1.2;
+      burst(width * 0.52, height * 0.37, THEME.red, 22);
+    }
+  }
+
+  function update(dt) {
+    if (state !== STATE_PLAYING) {
+      overlayEase = Math.min(1, overlayEase + dt * 2.6);
+      updateFx(dt);
+      return;
+    }
+    timeLeft -= dt;
+    trust = Math.max(0, trust - dt * 1.2);
+    if (timeLeft <= 0 || trust <= 0) {
+      timeLeft = Math.max(0, timeLeft);
+      state = STATE_OVER;
+      writeBest();
+    }
+    shake = Math.max(0, shake - dt * 3);
+    flash = Math.max(0, flash - dt * 2.4);
+    noticeTime = Math.max(0, noticeTime - dt);
+    updateFx(dt);
+  }
+
+  function updateFx(dt) {
+    for (let i = particles.length - 1; i >= 0; i -= 1) {
+      const p = particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  function render() {
+    ctx.save();
+    if (shake > 0) ctx.translate((Math.random() - 0.5) * shake * 16, (Math.random() - 0.5) * shake * 16);
+    drawBackground();
+    drawHud();
+    drawCase();
+    drawClues();
+    drawLedger();
+    drawHypotheses();
+    drawFx();
+    if (dragging) drawClueCard({ x: dragging.x - 92, y: dragging.y - 36, w: 184, h: 74, clue: dragging.clue }, true);
+    if (flash > 0) {
+      ctx.fillStyle = `rgba(159,57,55,${flash * 0.22})`;
+      ctx.fillRect(0, 0, width, height);
+    }
+    if (state !== STATE_PLAYING) drawOverlay();
+    ctx.restore();
+  }
+
+  function drawBackground() {
+    ctx.fillStyle = THEME.bg;
+    ctx.fillRect(0, 0, width, height);
+    ctx.strokeStyle = "rgba(201,163,91,0.09)";
+    ctx.lineWidth = 1;
+    for (let x = 0; x < width; x += 38) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < height; y += 38) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+    ctx.fillStyle = "rgba(33,25,22,0.90)";
+    roundRect(width * 0.34, height * 0.16, width * 0.34, height * 0.62, 18, true, true);
+    ctx.strokeStyle = "rgba(201,163,91,0.42)";
+    ctx.stroke();
+  }
+
+  function drawHud() {
+    drawText(THEME.title, 22, 30, 24, THEME.ink, "left", "serif");
+    drawText(S.score + " " + score + "   " + S.best + " " + best, 22, 58, 13, THEME.dim, "left", "serif");
+    drawMeter(22, 78, 176, 8, trust / 100, THEME.green, S.trust);
+    drawMeter(width - 210, 78, 176, 8, certainty / 100, THEME.accent, S.certainty);
+    drawText(S.time.replace("{n}", Math.ceil(timeLeft)), width - 22, 30, 24, timeLeft < 12 ? THEME.red : THEME.ink, "right", "serif");
+  }
+
+  function drawCase() {
+    const x = width * 0.37, y = height * 0.19, w = width * 0.28, h = height * 0.22;
+    ctx.fillStyle = "rgba(48,37,31,0.88)";
+    roundRect(x, y, w, h, 14, true, true);
+    ctx.strokeStyle = "rgba(201,163,91,0.54)";
+    ctx.stroke();
+    drawText(currentCase.client, x + 18, y + 26, 13, THEME.dim, "left", "serif");
+    wrapText(currentCase.question, x + 18, y + 62, w - 36, 22, THEME.ink, 19);
+    if (noticeTime > 0) drawText(notice, x + w / 2, y + h - 26, 15, notice === S.contradiction || notice === S.tooLittleEvidence ? THEME.red : THEME.accent, "center", "serif");
+  }
+
+  function drawClues() {
+    drawText(S.evidence, 28, clueRects[0].y - 18, 15, THEME.dim, "left", "serif");
+    for (const rect of clueRects) drawClueCard(rect, false);
+  }
+
+  function drawClueCard(rect, lifted) {
+    const clue = rect.clue;
+    const used = selectedClues.includes(clue);
+    ctx.save();
+    ctx.globalAlpha = used && !lifted ? 0.36 : 1;
+    ctx.fillStyle = lifted ? "rgba(71,54,43,0.98)" : "rgba(48,37,31,0.92)";
+    roundRect(rect.x, rect.y, rect.w, rect.h, 12, true, true);
+    ctx.strokeStyle = lifted ? THEME.accent : "rgba(139,111,78,0.75)";
+    ctx.lineWidth = lifted ? 3 : 1.5;
+    ctx.stroke();
+    drawText(clue.title, rect.x + 14, rect.y + 24, 15, THEME.ink, "left", "serif");
+    wrapText(clue.text, rect.x + 14, rect.y + 50, rect.w - 28, 18, THEME.dim, 13);
+    ctx.restore();
+  }
+
+  function drawLedger() {
+    drawText(S.ledger, width * 0.43, height * 0.46, 15, THEME.dim, "left", "serif");
+    for (const rect of ledgerRects) {
+      ctx.fillStyle = "rgba(19,15,13,0.76)";
+      roundRect(rect.x, rect.y, rect.w, rect.h, 10, true, true);
+      ctx.strokeStyle = "rgba(201,163,91,0.38)";
+      ctx.stroke();
+      if (rect.clue) {
+        drawText(rect.clue.title, rect.x + rect.w / 2, rect.y + 30, 12, THEME.ink, "center", "serif");
+        drawText(S.filedSlot, rect.x + rect.w / 2, rect.y + 54, 11, THEME.accent, "center", "serif");
+      } else {
+        drawText(S.dropSlot, rect.x + rect.w / 2, rect.y + 34, 11, THEME.dim, "center", "serif");
+      }
+    }
+    ctx.strokeStyle = "rgba(159,57,55,0.44)";
+    for (const line of lines) {
+      ctx.beginPath();
+      ctx.moveTo(line.x1, line.y1);
+      ctx.lineTo(line.x2, line.y2);
+      ctx.stroke();
+    }
+  }
+
+  function drawHypotheses() {
+    drawText(S.readings, hypothesisRects[0].x, hypothesisRects[0].y - 18, 15, THEME.dim, "left", "serif");
+    for (const rect of hypothesisRects) {
+      const h = rect.hypothesis;
+      const scoreHint = hypothesisScores[h.id] || 0;
+      ctx.fillStyle = "rgba(48,37,31,0.92)";
+      roundRect(rect.x, rect.y, rect.w, rect.h, 12, true, true);
+      ctx.strokeStyle = scoreHint > 0 ? THEME.accent : "rgba(139,111,78,0.62)";
+      ctx.lineWidth = scoreHint > 0 ? 2.5 : 1.2;
+      ctx.stroke();
+      drawText(h.label, rect.x + 14, rect.y + 22, 14, THEME.ink, "left", "serif");
+      drawText(h.desc, rect.x + 14, rect.y + 46, 11, THEME.dim, "left", "serif");
+    }
+  }
+
+  function drawFx() {
+    for (const p of particles) {
+      ctx.globalAlpha = Math.max(0, p.life * 2);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawOverlay() {
+    ctx.fillStyle = "rgba(19,15,13,0.82)";
+    ctx.fillRect(0, 0, width, height);
+    const y = height * (0.5 + (1 - overlayEase) * 0.04);
+    drawText(THEME.title, width / 2, y - 70, 38, THEME.ink, "center", "serif");
+    wrapText(THEME.instruction, width / 2 - Math.min(330, width * 0.38), y - 24, Math.min(660, width * 0.76), 24, THEME.dim, 17, "center");
+    drawText(state === STATE_OVER ? S.restart : S.start, width / 2, y + 54, 24, THEME.accent, "center", "serif");
+    if (state === STATE_OVER) drawText(S.score + " " + score + "   " + S.best + " " + best, width / 2, y + 92, 15, THEME.ink, "center", "serif");
+  }
+
+  function drawMeter(x, y, w, h, value, color, label) {
+    drawText(label, x, y - 10, 11, THEME.dim, "left", "serif");
+    ctx.fillStyle = "rgba(48,37,31,0.9)";
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w * Math.max(0, Math.min(1, value)), h);
+  }
+
+  function burst(x, y, color, count) {
+    for (let i = 0; i < count; i += 1) {
+      const a = Math.random() * Math.PI * 2;
+      const s = 45 + Math.random() * 130;
+      particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.48, size: 2 + Math.random() * 5, color });
+    }
+  }
+
+  function addLine(clueId) {
+    const source = clueRects.find(rect => rect.clue.id === clueId);
+    const target = ledgerRects[Math.max(0, selectedClues.length - 1)];
+    if (!source || !target) return;
+    lines.push({ x1: source.x + source.w, y1: source.y + source.h / 2, x2: target.x + target.w / 2, y2: target.y + target.h / 2 });
+  }
+
+  function inside(x, y, rect) {
+    return x >= rect.x && x <= rect.x + rect.w && y >= rect.y && y <= rect.y + rect.h;
+  }
+
+  function drawText(text, x, y, size, color, align, family) {
+    ctx.fillStyle = color;
+    ctx.font = `700 ${size}px ${family === "serif" ? "Georgia, serif" : "system-ui, sans-serif"}`;
+    ctx.textAlign = align;
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, x, y);
+  }
+
+  function wrapText(text, x, y, maxWidth, lineHeight, color, size, align = "left") {
+    ctx.fillStyle = color;
+    ctx.font = `700 ${size}px Georgia, serif`;
+    ctx.textAlign = align;
+    ctx.textBaseline = "middle";
+    const words = text.split(" ");
+    let line = "";
+    let yy = y;
+    const drawX = align === "center" ? x + maxWidth / 2 : x;
+    for (const word of words) {
+      const test = line ? line + " " + word : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        ctx.fillText(line, drawX, yy);
+        line = word;
+        yy += lineHeight;
+      } else {
+        line = test;
+      }
+    }
+    if (line) ctx.fillText(line, drawX, yy);
+  }
+
+  function roundRect(x, y, w, h, r, fill, stroke) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    if (fill) ctx.fill();
+    if (stroke) ctx.stroke();
+  }
+
+  function tick(now) {
+    if (!lastTime) lastTime = now;
+    const frame = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+    accumulator += frame;
+    while (accumulator >= FIXED_DT) {
+      update(FIXED_DT);
+      accumulator -= FIXED_DT;
+    }
+    render();
+    requestAnimationFrame(tick);
+  }
+
+  resizeCanvas();
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>

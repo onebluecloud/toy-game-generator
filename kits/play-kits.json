@@ -1,0 +1,101 @@
+[
+  {
+    "id": "horde-survival",
+    "label": "Horde Survival",
+    "verbs": ["survive", "move", "auto-attack", "collect xp", "choose upgrades"],
+    "bestFor": ["coffee", "virus", "monster", "office", "stress", "battle"],
+    "template": "horde-survival.html",
+    "requiredMechanics": ["upgrade-cards", "enemy-variety"],
+    "baseScore": 10
+  },
+  {
+    "id": "runner-lane",
+    "label": "Lane Runner",
+    "verbs": ["switch lanes", "dodge", "collect", "hit gates"],
+    "bestFor": ["racing", "adventure", "escape", "subway", "delivery"],
+    "template": "runner-lane.html",
+    "requiredMechanics": ["risk-reward"],
+    "baseScore": 8
+  },
+  {
+    "id": "case-deduction",
+    "label": "Case Deduction",
+    "verbs": ["read evidence", "file clues", "infer", "choose interpretation", "manage trust"],
+    "bestFor": ["fortune", "divination", "oracle", "tarot", "astrology", "detective", "mystery", "consulting", "diagnosis", "算命", "占卜", "塔罗", "星盘", "八字", "推理", "侦探", "咨询", "诊断"],
+    "template": "case-deduction.html",
+    "requiredMechanics": ["trust-pressure", "contradiction-mark"],
+    "baseScore": 12
+  },
+  {
+    "id": "tower-defense",
+    "label": "Tower Defense",
+    "verbs": ["place towers", "hold lanes", "survive waves", "upgrade defense"],
+    "bestFor": ["tower", "defense", "guard", "protect", "siege", "base", "city", "cafe", "office", "塔防", "防守", "守护", "保卫", "基地", "城市", "咖啡店"],
+    "template": "tower-defense.html",
+    "requiredMechanics": ["tower-placement", "wave-defense"],
+    "baseScore": 11
+  },
+  {
+    "id": "deck-builder",
+    "label": "Deck Builder",
+    "verbs": ["draw cards", "spend energy", "play combos", "build deck"],
+    "bestFor": ["card", "deck", "builder", "strategy", "business", "negotiation", "battle", "tarot", "卡牌", "构筑", "牌组", "商业", "谈判", "策略"],
+    "template": "deck-builder.html",
+    "requiredMechanics": ["card-energy", "card-combo"],
+    "baseScore": 11
+  },
+  {
+    "id": "match-puzzle",
+    "label": "Match Puzzle",
+    "verbs": ["match tiles", "clear groups", "chain bonuses", "solve board"],
+    "bestFor": ["match", "puzzle", "tile", "clear", "gem", "coffee", "消除", "连线", "方块", "宝石", "咖啡豆"],
+    "template": "match-puzzle.html",
+    "requiredMechanics": ["match-chain", "board-clear"],
+    "baseScore": 10
+  },
+  {
+    "id": "physics-arc",
+    "label": "Physics Arc",
+    "verbs": ["aim", "drag", "release", "bounce", "hit target"],
+    "bestFor": ["throw", "arc", "slingshot", "rescue", "launch", "physics", "投掷", "弹射", "救援", "发射", "物理"],
+    "template": "physics-arc.html",
+    "requiredMechanics": ["arc-aim", "limited-shots"],
+    "baseScore": 10
+  },
+  {
+    "id": "rhythm-tap",
+    "label": "Rhythm Tap",
+    "verbs": ["tap timing", "keep beat", "chain perfects", "avoid misses"],
+    "bestFor": ["rhythm", "music", "beat", "tap", "dance", "timing", "节奏", "音乐", "点击", "打拍", "时机"],
+    "template": "rhythm-tap.html",
+    "requiredMechanics": ["beat-timing", "combo-streak"],
+    "baseScore": 10
+  },
+  {
+    "id": "platform-climb",
+    "label": "Platform Climb",
+    "verbs": ["move", "jump", "land", "climb", "avoid hazards"],
+    "bestFor": ["platform", "jump", "climb", "adventure", "tower", "escape", "平台", "跳跃", "爬塔", "攀爬", "冒险", "逃离"],
+    "template": "platform-climb.html",
+    "requiredMechanics": ["platform-jump", "rising-pressure"],
+    "baseScore": 10
+  },
+  {
+    "id": "idle-automation",
+    "label": "Idle Automation",
+    "verbs": ["produce", "upgrade", "automate", "remove bottlenecks"],
+    "bestFor": ["idle", "automation", "factory", "business", "shop", "cafe", "growth", "放置", "自动化", "经营", "工厂", "店铺", "增长", "咖啡店"],
+    "template": "idle-automation.html",
+    "requiredMechanics": ["production-loop", "bottleneck-upgrade"],
+    "baseScore": 10
+  },
+  {
+    "id": "grid-tactics",
+    "label": "Grid Tactics",
+    "verbs": ["move on grid", "control zones", "block enemies", "plan turns"],
+    "bestFor": ["grid", "tactics", "strategy", "contain", "virus", "board", "围堵", "战术", "棋盘", "格子", "策略", "病毒"],
+    "template": "grid-tactics.html",
+    "requiredMechanics": ["grid-move", "area-control"],
+    "baseScore": 10
+  }
+]

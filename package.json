@@ -1,0 +1,15 @@
+{
+  "name": "toy-game-generator",
+  "version": "0.1.0",
+  "description": "Prompt-to-playable HTML toy game generator using GameSpec, kits, and templates.",
+  "type": "commonjs",
+  "scripts": {
+    "generate": "node scripts/generate.js",
+    "validate": "node scripts/validate.js",
+    "audit": "node scripts/audit.js",
+    "preview": "node scripts/preview.js",
+    "app": "node scripts/preview.js --app",
+    "build:site": "node scripts/build-site.js"
+  },
+  "license": "MIT"
+}

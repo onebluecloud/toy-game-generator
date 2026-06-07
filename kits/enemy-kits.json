@@ -1,0 +1,86 @@
+[
+  {
+    "id": "sleepy-swarm",
+    "label": "Sleepy Swarm",
+    "bestFor": ["coffee", "office", "tired", "horde-survival"],
+    "types": ["foamling", "drowsy", "jitter", "mug", "charger", "splitter", "eliteAlarm"],
+    "baseScore": 10
+  },
+  {
+    "id": "traffic-pack",
+    "label": "Traffic Pack",
+    "bestFor": ["racing", "runner-lane", "highway"],
+    "types": ["slowCar", "oilSlick", "cone", "nitroGate", "rivalCar"],
+    "baseScore": 9
+  },
+  {
+    "id": "glitch-pack",
+    "label": "Glitch Pack",
+    "bestFor": ["computer", "virus", "cyber"],
+    "types": ["bug", "popup", "lagSpike", "corruptBlock", "firewallElite"],
+    "baseScore": 9
+  },
+  {
+    "id": "ambiguity-pack",
+    "label": "Ambiguity Pack",
+    "bestFor": ["fortune", "divination", "case-deduction", "mystery", "detective", "consulting", "diagnosis", "算命", "占卜", "推理", "侦探"],
+    "types": ["ambiguity", "contradiction", "lowTrust", "falseLead", "timePressure"],
+    "baseScore": 10
+  },
+  {
+    "id": "siege-pack",
+    "label": "Siege Pack",
+    "bestFor": ["tower", "defense", "tower-defense", "guard", "protect", "base", "cafe", "塔防", "防守", "守护", "保卫"],
+    "types": ["runner", "tank", "shield", "swarm", "elite"],
+    "baseScore": 10
+  },
+  {
+    "id": "dilemma-pack",
+    "label": "Dilemma Pack",
+    "bestFor": ["deck", "card", "business", "negotiation", "strategy", "卡牌", "构筑", "商业", "谈判"],
+    "types": ["objection", "debt", "doubt", "fatigue", "opportunity"],
+    "baseScore": 10
+  },
+  {
+    "id": "clutter-pack",
+    "label": "Clutter Pack",
+    "bestFor": ["match", "puzzle", "clear", "coffee", "消除", "咖啡豆"],
+    "types": ["bean", "cream", "sugar", "blocker", "bonus"],
+    "baseScore": 9
+  },
+  {
+    "id": "obstacle-pack",
+    "label": "Obstacle Pack",
+    "bestFor": ["physics", "arc", "throw", "rescue", "弹射", "投掷", "救援"],
+    "types": ["crate", "shield", "movingTarget", "bouncePad", "hazard"],
+    "baseScore": 9
+  },
+  {
+    "id": "beat-pack",
+    "label": "Beat Pack",
+    "bestFor": ["rhythm", "music", "beat", "tap", "节奏", "音乐"],
+    "types": ["tap", "hold", "double", "early", "break"],
+    "baseScore": 9
+  },
+  {
+    "id": "hazard-pack",
+    "label": "Hazard Pack",
+    "bestFor": ["platform", "jump", "climb", "adventure", "平台", "跳跃", "爬塔"],
+    "types": ["spike", "crumble", "wind", "gap", "patrol"],
+    "baseScore": 9
+  },
+  {
+    "id": "bottleneck-pack",
+    "label": "Bottleneck Pack",
+    "bestFor": ["idle", "automation", "factory", "business", "经营", "自动化", "咖啡店"],
+    "types": ["queue", "brokenMachine", "rushOrder", "waste", "upgradeGate"],
+    "baseScore": 9
+  },
+  {
+    "id": "tactic-pack",
+    "label": "Tactic Pack",
+    "bestFor": ["grid", "tactics", "virus", "contain", "战术", "棋盘", "围堵", "病毒"],
+    "types": ["blocker", "chaser", "splitter", "zone", "elite"],
+    "baseScore": 9
+  }
+]

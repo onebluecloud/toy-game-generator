@@ -1,0 +1,149 @@
+[
+  {
+    "id": "upgrade-cards",
+    "label": "Upgrade Cards",
+    "bestFor": ["horde-survival", "battle", "roguelite"],
+    "summary": "XP fills a bar, level-up pauses the game, player picks one of three upgrades.",
+    "baseScore": 10
+  },
+  {
+    "id": "enemy-variety",
+    "label": "Enemy Variety",
+    "bestFor": ["horde-survival", "chaos", "survive"],
+    "summary": "Enemy set includes fast, tank, charger, splitter, and elite behavior.",
+    "baseScore": 9
+  },
+  {
+    "id": "risk-reward",
+    "label": "Risk Reward",
+    "bestFor": ["runner-lane", "racing", "treasure", "score"],
+    "summary": "High-value rewards appear near danger or in risky lanes.",
+    "baseScore": 8
+  },
+  {
+    "id": "combo-streak",
+    "label": "Combo Streak",
+    "bestFor": ["score", "arcade", "racing", "survive"],
+    "summary": "Repeated success raises a multiplier until the player is hit.",
+    "baseScore": 7
+  },
+  {
+    "id": "trust-pressure",
+    "label": "Trust Pressure",
+    "bestFor": ["case-deduction", "fortune", "consulting", "diagnosis", "算命", "占卜"],
+    "summary": "A trust meter drains over time and drops on weak or wrong interpretations.",
+    "baseScore": 10
+  },
+  {
+    "id": "contradiction-mark",
+    "label": "Contradiction Mark",
+    "bestFor": ["case-deduction", "mystery", "detective", "risk", "推理", "侦探"],
+    "summary": "Wrong readings create a visible penalty, time loss, shake, and red feedback.",
+    "baseScore": 9
+  },
+  {
+    "id": "tower-placement",
+    "label": "Tower Placement",
+    "bestFor": ["tower-defense", "strategy", "guard", "protect", "塔防", "守护"],
+    "summary": "Player spends currency to place towers on fixed build nodes.",
+    "baseScore": 10
+  },
+  {
+    "id": "wave-defense",
+    "label": "Wave Defense",
+    "bestFor": ["tower-defense", "siege", "base", "defense", "塔防", "防守"],
+    "summary": "Enemies arrive in timed waves and damage the base if they cross the route.",
+    "baseScore": 10
+  },
+  {
+    "id": "card-energy",
+    "label": "Card Energy",
+    "bestFor": ["deck-builder", "card", "strategy", "卡牌", "构筑"],
+    "summary": "Each turn gives limited energy that constrains which cards can be played.",
+    "baseScore": 10
+  },
+  {
+    "id": "card-combo",
+    "label": "Card Combo",
+    "bestFor": ["deck-builder", "combo", "negotiation", "卡牌", "连携"],
+    "summary": "Playing compatible cards in sequence creates extra damage, shield, or score.",
+    "baseScore": 9
+  },
+  {
+    "id": "match-chain",
+    "label": "Match Chain",
+    "bestFor": ["match-puzzle", "puzzle", "消除", "连锁"],
+    "summary": "Clearing large groups creates score chains and floating feedback.",
+    "baseScore": 10
+  },
+  {
+    "id": "board-clear",
+    "label": "Board Clear",
+    "bestFor": ["match-puzzle", "tiles", "board", "消除"],
+    "summary": "The board refills after cleared tiles and rewards sustained cleanup.",
+    "baseScore": 9
+  },
+  {
+    "id": "arc-aim",
+    "label": "Arc Aim",
+    "bestFor": ["physics-arc", "throw", "launch", "弹射", "投掷"],
+    "summary": "Pointer drag sets launch direction and power for a projectile.",
+    "baseScore": 10
+  },
+  {
+    "id": "limited-shots",
+    "label": "Limited Shots",
+    "bestFor": ["physics-arc", "precision", "rescue", "弹射"],
+    "summary": "Limited shots make each release a risk/reward decision.",
+    "baseScore": 9
+  },
+  {
+    "id": "beat-timing",
+    "label": "Beat Timing",
+    "bestFor": ["rhythm-tap", "music", "节奏", "音乐"],
+    "summary": "Tap close to the hit line for perfect/good/miss timing results.",
+    "baseScore": 10
+  },
+  {
+    "id": "platform-jump",
+    "label": "Platform Jump",
+    "bestFor": ["platform-climb", "jump", "平台", "跳跃"],
+    "summary": "Player moves and jumps between platforms while avoiding hazards.",
+    "baseScore": 10
+  },
+  {
+    "id": "rising-pressure",
+    "label": "Rising Pressure",
+    "bestFor": ["platform-climb", "climb", "爬塔", "冒险"],
+    "summary": "Platforms scroll and a bottom danger zone pressures upward movement.",
+    "baseScore": 9
+  },
+  {
+    "id": "production-loop",
+    "label": "Production Loop",
+    "bestFor": ["idle-automation", "factory", "business", "经营", "自动化"],
+    "summary": "Stations produce currency over time and become stronger through upgrades.",
+    "baseScore": 10
+  },
+  {
+    "id": "bottleneck-upgrade",
+    "label": "Bottleneck Upgrade",
+    "bestFor": ["idle-automation", "upgrade", "放置", "经营"],
+    "summary": "Random bottlenecks slow production until the player spends to clear them.",
+    "baseScore": 9
+  },
+  {
+    "id": "grid-move",
+    "label": "Grid Move",
+    "bestFor": ["grid-tactics", "strategy", "战术", "棋盘"],
+    "summary": "Player moves one tile per turn on a compact grid.",
+    "baseScore": 10
+  },
+  {
+    "id": "area-control",
+    "label": "Area Control",
+    "bestFor": ["grid-tactics", "contain", "围堵", "策略"],
+    "summary": "Tiles can be sealed or controlled to slow enemy spread.",
+    "baseScore": 9
+  }
+]

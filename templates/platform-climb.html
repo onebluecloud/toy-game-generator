@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="{{LANG}}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>{{TITLE}}</title><link rel="icon" href="data:,"><style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:{{BACKGROUND_A}};color:{{INK}};font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none;user-select:none}canvas{display:block;width:100vw;height:100vh;touch-action:none}
+</style></head><body>
+<!--
+GAME_SPEC_ID: {{ID}}
+GAME_KIT: platform-climb
+STYLE_KIT: {{STYLE_KIT}}
+MECHANICS: {{MECHANICS}}
+ENEMY_SET: {{ENEMY_SET}}
+-->
+<canvas id="game" aria-label="{{TITLE}}"></canvas><script>
+(() => {
+"use strict";
+const SPEC = {{SPEC_JSON}},S=SPEC.strings,canvas=document.getElementById("game"),ctx=canvas.getContext("2d"),READY="READY",PLAYING="PLAYING",OVER="OVER",FIXED_DT=1/60;
+let width=0,height=0,dpr=1,state=READY,last=0,acc=0,score=0,best=Number(localStorage.getItem("tgg-"+SPEC.id+"-best")||0),timeLeft=SPEC.duration,shake=0,flash=0;
+const p=SPEC.palette,platforms=[],particles=[],floats=[],player={x:0,y:0,vx:0,vy:0,w:28,h:34,on:false,targetX:0};
+function resize(){dpr=Math.max(1,Math.min(2,devicePixelRatio||1));width=innerWidth;height=innerHeight;canvas.width=Math.floor(width*dpr);canvas.height=Math.floor(height*dpr);canvas.style.width=width+"px";canvas.style.height=height+"px";ctx.setTransform(dpr,0,0,dpr,0,0)}
+function reset(){state=PLAYING;score=0;timeLeft=SPEC.duration;platforms.length=particles.length=floats.length=0;player.x=width/2;player.y=height*.72;player.vx=0;player.vy=0;player.targetX=player.x;for(let i=0;i<8;i++)platforms.push({x:80+Math.random()*(width-220),y:height*.82-i*92,w:110+Math.random()*70,h:18,bad:Math.random()<.18})}
+function pointerdown(e){e.preventDefault();if(state===READY||state===OVER){reset();return}player.targetX=e.clientX;if(player.on){player.vy=-430;player.on=false;burst(player.x,player.y,p.accent,12)}}
+function pointermove(e){e.preventDefault();player.targetX=e.clientX}function pointerup(e){e.preventDefault()}
+canvas.addEventListener("pointerdown",pointerdown);canvas.addEventListener("pointermove",pointermove);canvas.addEventListener("pointerup",pointerup);canvas.addEventListener("pointercancel",pointerup);addEventListener("resize",resize);
+function update(dt){if(state!==PLAYING){updateFx(dt);return}timeLeft-=dt;if(timeLeft<=0)over();player.vx+=(player.targetX-player.x)*9*dt;player.vx*=.86;player.vy+=820*dt;player.x+=player.vx*dt;player.y+=player.vy*dt;player.x=Math.max(16,Math.min(width-16,player.x));player.on=false;for(const pl of platforms){pl.y+=44*dt*SPEC.tuning.speed;if(player.vy>0&&player.x>pl.x&&player.x<pl.x+pl.w&&player.y+player.h/2>pl.y&&player.y+player.h/2<pl.y+pl.h+18){player.y=pl.y-player.h/2;player.vy=-120;player.on=true;if(pl.bad){flash=.28;score=Math.max(0,score-20);addFloat("-20",player.x,player.y,p.bad)}else{score+=Math.round(3*SPEC.tuning.scoreMultiplier)}}}if(platforms[0]&&platforms[0].y>height+40)platforms.shift();while(platforms.length<8){const top=Math.min(...platforms.map(pl=>pl.y));platforms.push({x:70+Math.random()*(width-200),y:top-92,w:100+Math.random()*80,h:18,bad:Math.random()<.2})}if(player.y>height+80)over();shake=Math.max(0,shake-dt*3);flash=Math.max(0,flash-dt*3);updateFx(dt)}
+function over(){state=OVER;best=Math.max(best,score);localStorage.setItem("tgg-"+SPEC.id+"-best",String(best))}
+function updateFx(dt){for(const q of particles){q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt}for(const f of floats){f.y-=36*dt;f.life-=dt}trim(particles,q=>q.life<=0);trim(floats,f=>f.life<=0)}
+function render(){ctx.save();bg();world();fx();hud();if(flash){ctx.fillStyle=alpha(p.bad,flash*.25);ctx.fillRect(0,0,width,height)}if(state!==PLAYING)overlay();ctx.restore()}
+function bg(){const g=ctx.createLinearGradient(0,0,0,height);g.addColorStop(0,p.backgroundA);g.addColorStop(1,p.backgroundB);ctx.fillStyle=g;ctx.fillRect(0,0,width,height);ctx.strokeStyle=alpha(p.ink,.08);for(let y=0;y<height;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(width,y);ctx.stroke()}}
+function world(){ctx.fillStyle=alpha(p.bad,.22);ctx.fillRect(0,height-44,width,44);for(const pl of platforms){ctx.fillStyle=pl.bad?p.bad:p.accent;ctx.beginPath();ctx.roundRect(pl.x,pl.y,pl.w,pl.h,8);ctx.fill()}ctx.fillStyle=p.good;ctx.beginPath();ctx.roundRect(player.x-player.w/2,player.y-player.h/2,player.w,player.h,9);ctx.fill();ctx.strokeStyle=p.ink;ctx.lineWidth=3;ctx.stroke()}
+function hud(){if(state===READY)return;text(SPEC.title,20,30,22,p.ink,"left");text(S.score+" "+score+" "+S.best+" "+best,20,58,13,p.ink,"left");text(S.jumpMove,width-20,32,15,p.ink,"right");text(S.time.replace("{n}",Math.ceil(timeLeft)),width-20,60,22,timeLeft<10?p.bad:p.ink,"right")}
+function fx(){for(const q of particles){ctx.globalAlpha=q.life*2;ctx.fillStyle=q.color;ctx.fillRect(q.x,q.y,q.size,q.size)}ctx.globalAlpha=1;for(const f of floats){ctx.globalAlpha=f.life;text(f.text,f.x,f.y,16,f.color,"center")}ctx.globalAlpha=1}
+function overlay(){ctx.fillStyle="rgba(0,0,0,.66)";ctx.fillRect(0,0,width,height);text(SPEC.title,width/2,height*.43,36,p.ink,"center");text(SPEC.roles.objective,width/2,height*.43+42,15,p.ink,"center");text(state===OVER?S.restart:S.start,width/2,height*.43+94,25,p.accent,"center");if(state===OVER)text(S.score+" "+score+" "+S.best+" "+best,width/2,height*.43+130,15,p.ink,"center")}
+function burst(x,y,c,n){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=35+Math.random()*110;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.5,size:3+Math.random()*5,color:c})}}function addFloat(t,x,y,c){floats.push({text:t,x,y,life:.9,color:c})}function trim(a,pred){for(let i=a.length-1;i>=0;i--)if(pred(a[i]))a.splice(i,1)}function alpha(hex,a){const n=parseInt(hex.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}function text(t,x,y,s,c,a){ctx.fillStyle=c;ctx.font=`900 ${s}px system-ui`;ctx.textAlign=a;ctx.textBaseline="middle";ctx.fillText(t,x,y)}
+function tick(now){if(!last)last=now;const frame=Math.min(.05,(now-last)/1000);last=now;acc+=frame;while(acc>=FIXED_DT){update(FIXED_DT);acc-=FIXED_DT}render();requestAnimationFrame(tick)}resize();requestAnimationFrame(tick);
+})();
+</script></body></html>

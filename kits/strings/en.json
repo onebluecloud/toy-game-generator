@@ -1,0 +1,74 @@
+{
+  "common": {
+    "start": "START",
+    "restart": "RESTART",
+    "score": "Score",
+    "best": "Best",
+    "time": "{n}s",
+    "gameOver": "GAME OVER",
+    "hp": "HP",
+    "combo": "Combo",
+    "level": "Level",
+    "wave": "Wave",
+    "coins": "Coins",
+    "lives": "Lives",
+    "turn": "Turn"
+  },
+  "horde-survival": {
+    "levelUp": "LEVEL UP",
+    "chooseCard": "Choose one card",
+    "upgrades": {
+      "shots": ["Multishot", "Add one auto bullet"],
+      "speed": ["Move Speed", "Move faster"],
+      "fire": ["Fire Rate", "Shoot more often"],
+      "magnet": ["Magnet", "Wider pickup pull"],
+      "heart": ["Vitality", "Recover one life"]
+    }
+  },
+  "case-deduction": {
+    "instruction": "Drag evidence into the ledger, then choose the strongest reading before trust runs out.",
+    "evidence": "Evidence",
+    "ledger": "Ledger",
+    "readings": "Readings",
+    "trust": "Trust",
+    "certainty": "Certainty",
+    "filed": "Evidence filed",
+    "filedSlot": "filed",
+    "dropSlot": "drop",
+    "tooLittleEvidence": "Too little evidence",
+    "solved": "Pattern confirmed",
+    "failed": "Weak reading",
+    "readingSealed": "Reading sealed",
+    "contradiction": "Contradiction marked"
+  },
+  "deck-builder": {
+    "energy": "Energy",
+    "shield": "Shield",
+    "demand": "Demand",
+    "endTurn": "End turn"
+  },
+  "match-puzzle": {},
+  "physics-arc": {
+    "shots": "Shots",
+    "stage": "Stage"
+  },
+  "rhythm-tap": {
+    "perfect": "Perfect",
+    "good": "Good",
+    "miss": "Miss"
+  },
+  "platform-climb": {
+    "jumpMove": "Jump / Move"
+  },
+  "idle-automation": {
+    "cash": "Cash",
+    "rate": "Rate",
+    "upgrade": "Upgrade",
+    "bottleneck": "Clear bottleneck"
+  },
+  "grid-tactics": {
+    "locks": "Locks"
+  },
+  "runner-lane": {},
+  "tower-defense": {}
+}
