@@ -127,5 +127,6 @@
   "tile-match": {},
   "brick-breaker": {},
   "flappy-gap": {},
-  "merge-defense": {}
+  "merge-defense": {},
+  "rhythm-whack": { "perfect": "PERFECT", "good": "GOOD", "miss": "MISS" }
 }

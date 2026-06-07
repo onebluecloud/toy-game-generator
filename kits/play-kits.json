@@ -142,5 +142,14 @@
     "template": "merge-defense.html",
     "requiredMechanics": ["merge-grow", "tower-placement"],
     "baseScore": 11
+  },
+  {
+    "id": "rhythm-whack",
+    "label": "Rhythm Whack",
+    "verbs": ["watch the beat", "bonk moles", "chain combos"],
+    "bestFor": ["whack", "mole", "打地鼠", "地鼠", "敲地鼠", "节奏打地鼠"],
+    "template": "rhythm-whack.html",
+    "requiredMechanics": ["beat-timing"],
+    "baseScore": 11
   }
 ]

@@ -127,5 +127,6 @@
   "tile-match": {},
   "brick-breaker": {},
   "flappy-gap": {},
-  "merge-defense": {}
+  "merge-defense": {},
+  "rhythm-whack": { "perfect": "完美", "good": "命中", "miss": "失误" }
 }

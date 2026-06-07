@@ -64,7 +64,7 @@ npm run app
 - `idle-automation`
 - `grid-tactics`
 
-Current catalog scale: 16 play kits, 6 style kits, 12 enemy kits, 25 mechanic kits, and 12960 ranked candidate combinations before theme scoring.
+Current catalog scale: 17 play kits, 6 style kits, 12 enemy kits, 25 mechanic kits, and 13824 ranked candidate combinations before theme scoring.
 
 ## Text System
 

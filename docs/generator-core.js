@@ -240,7 +240,8 @@
       "tile-match": ["{t} Triple", "{t} Tiles", "{t} Match 3"],
       "brick-breaker": ["{t} Breaker", "{t} Bricks", "{t} Smash"],
       "flappy-gap": ["{t} Flap", "{t} Wings", "{t} Sky Dash"],
-      "merge-defense": ["{t} Defenders", "{t} Stand", "{t} Frontline"]
+      "merge-defense": ["{t} Defenders", "{t} Stand", "{t} Frontline"],
+      "rhythm-whack": ["{t} Bonk", "{t} Beat", "{t} Frenzy"]
     },
     zh: {
       "horde-survival": ["{t}大作战", "{t}突围战", "勇闯{t}"],
@@ -258,7 +259,8 @@
       "tile-match": ["{t}叠叠消", "{t}三消", "消消{t}"],
       "brick-breaker": ["{t}打砖块", "敲碎{t}", "{t}弹球"],
       "flappy-gap": ["{t}一键飞", "飞跃{t}", "{t}冲刺"],
-      "merge-defense": ["{t}守卫战", "{t}保卫战", "{t}合体大战"]
+      "merge-defense": ["{t}守卫战", "{t}保卫战", "{t}合体大战"],
+      "rhythm-whack": ["{t}敲敲乐", "{t}大作战", "{t}总动员"]
     }
   };
   function titleFor(theme, candidate, lang) {
@@ -286,7 +288,8 @@
       "tile-match": "Tiles",
       "brick-breaker": "Bricks",
       "flappy-gap": "Flap",
-      "merge-defense": "Defense"
+      "merge-defense": "Defense",
+      "rhythm-whack": "Whack"
     };
     const zh = {
       "horde-survival": "突围",
@@ -304,7 +307,8 @@
       "tile-match": "三消",
       "brick-breaker": "弹球",
       "flappy-gap": "起飞",
-      "merge-defense": "塔防"
+      "merge-defense": "塔防",
+      "rhythm-whack": "打地鼠"
     };
     const table = lang === "zh" ? zh : en;
     return table[playKitId] || (lang === "zh" ? "游戏" : "Game");
@@ -337,7 +341,8 @@
       "tile-match": ["sorter", "clear the " + lowerTopic + " tiles in threes", "a filling tray", "triple clears", "tray combo", "tile heap"],
       "brick-breaker": ["paddler", "break the " + lowerTopic + " wall", "a falling ball", "combo breaks", "clear bonus", "brick field"],
       "flappy-gap": ["flyer", "fly the " + lowerTopic + " gauntlet", "tight pipes", "clean passes", "near miss", "scrolling sky"],
-      "merge-defense": ["commander", "place and merge units to hold the " + lowerTopic + " lanes", "advancing waves", "stronger merges", "high-level fusion", "sunny field"]
+      "merge-defense": ["commander", "place and merge units to hold the " + lowerTopic + " lanes", "advancing waves", "stronger merges", "high-level fusion", "sunny field"],
+      "rhythm-whack": ["whacker", "bonk the " + lowerTopic + " moles on beat", "ducking moles", "perfect bonks", "combo frenzy", "sunny garden"]
     };
     const zh = {
       "horde-survival": ["操作员", "顶住" + topic + "涌潮", "围压", "动能补给", "升级爆发", "压力场"],
@@ -355,7 +360,8 @@
       "tile-match": ["理牌人", "三连消掉" + topic + "牌", "渐满的卡槽", "三连消除", "清槽连击", "牌堆"],
       "brick-breaker": ["挡板手", "击碎" + topic + "砖墙", "下坠的球", "连击破砖", "通关奖励", "砖场"],
       "flappy-gap": ["飞行者", "穿过" + topic + "缝隙", "逼仄管道", "干净通过", "擦身而过", "卷动天空"],
-      "merge-defense": ["指挥官", "合并单位守住" + topic + "防线", "逼近的波次", "更强的合体", "高级融合", "阳光防线"]
+      "merge-defense": ["指挥官", "合并单位守住" + topic + "防线", "逼近的波次", "更强的合体", "高级融合", "阳光防线"],
+      "rhythm-whack": ["锤手", "跟着节拍敲" + topic + "地鼠", "乱窜地鼠", "完美敲击", "连击狂潮", "草地洞口"]
     };
     const templates = lang === "zh" ? zh : en;
     const values = templates[candidate.playKit.id] || templates["horde-survival"];

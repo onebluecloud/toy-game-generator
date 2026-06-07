@@ -286,5 +286,21 @@
     "preferredEnemySets": ["siege-pack"],
     "maturityLevel": "casual",
     "coreExperience": "drop units, drag to merge into stronger ones, and defend lanes against waves"
+  },
+  {
+    "keywords": ["打地鼠", "whack", "mole", "地鼠", "敲地鼠", "节奏打地鼠", "whack a mole"],
+    "roles": {
+      "player": "mole whacker",
+      "objective": "bonk the moles in time with the beat",
+      "threat": "moles that duck back down",
+      "reward": "perfect on-beat bonks",
+      "special": "combo frenzy",
+      "environment": "sunny garden"
+    },
+    "preferredPlayKits": ["rhythm-whack"],
+    "preferredStyleKits": ["toy-diorama"],
+    "preferredEnemySets": ["beat-pack"],
+    "maturityLevel": "casual",
+    "coreExperience": "moles pop up on the beat; bonk them on time to keep a perfect combo going"
   }
 ]

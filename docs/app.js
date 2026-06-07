@@ -13,24 +13,24 @@
       sub: "电脑病毒、算命、塔防、消除…… 任意主题，几秒出一个点开就能玩的网页小游戏。",
       honest: "生成逻辑 100% 跑在你的浏览器里，无后端、不上传任何东西。",
       go: "生成游戏", random: "🎲 随机一个", tryLabel: "试试这些（每个都是不同玩法）：",
-      fullscreen: "⛶ 全屏试玩", download: "⬇ 下载 HTML", again: "↻ 换个玩法",
+      fullscreen: "⛶ 全屏试玩", download: "⬇ 下载 HTML", again: "🎲 换一个",
       copyLink: "🔗 复制链接", copied: "✓ 链接已复制",
-      playHint: "手机端直接在上方触屏游玩；「换个玩法」会切到完全不同的游戏类型。",
-      what: "它是什么：不是「AI 现写代码」，而是 16 套手工打磨的玩法模板 + 你的主题词，从 12960 个组合里挑最契合的一个，换皮换文案换节奏。玩法本体是验证过「能玩」的代码。",
+      playHint: "手机端直接在上方触屏游玩；点「🎲 换一个」随机来一个全新主题和玩法。",
+      what: "它是什么：不是「AI 现写代码」，而是 17 套手工打磨的玩法模板 + 你的主题词，从 13824 个组合里挑最契合的一个，换皮换文案换节奏。玩法本体是验证过「能玩」的代码。",
       placeholder: "输入任意词，比如：深海考古",
-      chips: ["合成塔防", "合成大西瓜", "羊了个羊", "打砖块", "flappy 一键飞", "电脑病毒", "赛车", "末日塔防", "算命", "音乐节奏", "宝石消除", "弹射救援", "商业谈判"]
+      chips: ["合成塔防", "打地鼠", "合成大西瓜", "羊了个羊", "打砖块", "flappy 一键飞", "电脑病毒", "赛车", "末日塔防", "算命", "音乐节奏", "宝石消除", "商业谈判"]
     },
     en: {
       h1: "Type a word,<br>get a playable game in seconds",
       sub: "Computer virus, fortune telling, tower defense, match puzzle… any theme, a playable browser game in seconds.",
       honest: "Generation runs 100% in your browser. No backend, nothing uploaded.",
       go: "Generate", random: "🎲 Random", tryLabel: "Try these (each is a different genre):",
-      fullscreen: "⛶ Fullscreen", download: "⬇ Download HTML", again: "↻ Switch genre",
+      fullscreen: "⛶ Fullscreen", download: "⬇ Download HTML", again: "🎲 Another",
       copyLink: "🔗 Copy link", copied: "✓ Link copied",
-      playHint: "Play right above by touch; \"Switch genre\" jumps to a completely different game type.",
-      what: "What it is: not \"AI writes code\" — it's 16 hand-built play templates + your theme, picking the best fit out of 12960 combos and reskinning title, copy, and pacing. The gameplay itself is validated, playable code.",
+      playHint: "Play right above by touch; tap \"🎲 Another\" for a fresh random theme and game.",
+      what: "What it is: not \"AI writes code\" — it's 17 hand-built play templates + your theme, picking the best fit out of 13824 combos and reskinning title, copy, and pacing. The gameplay itself is validated, playable code.",
       placeholder: "Type anything, e.g. deep-sea archaeology",
-      chips: ["merge defense", "watermelon merge", "sheep stack", "brick breaker", "flappy bird", "computer virus", "street racing", "tower defense", "fortune telling", "music rhythm", "gem match", "slingshot rescue", "business negotiation"]
+      chips: ["merge defense", "whack-a-mole", "watermelon merge", "sheep stack", "brick breaker", "flappy bird", "computer virus", "street racing", "tower defense", "fortune telling", "music rhythm", "gem match", "business negotiation"]
     }
   };
 
@@ -51,7 +51,8 @@
       "tile-match": "点最上层的牌收进底部卡槽，凑齐 3 张相同自动消除；卡槽放满 7 个就输。",
       "brick-breaker": "手指左右移动挡板接住球，把上方砖块全部打碎，别让球掉下去。",
       "flappy-gap": "不停点击让它往上飞，穿过一个个管道缝隙，碰到管道或落地就结束。",
-      "merge-defense": "点空格子花金币放炮台；把两个同等级炮台拖到一起合并升级，越高级越强；别让怪冲到底线。"
+      "merge-defense": "点空格子花金币放炮台；把两个同等级炮台拖到一起合并升级，越高级越强；别让怪冲到底线。",
+      "rhythm-whack": "地鼠跟着节拍冒头，冒出来时点它敲掉；踩准拍子分更高，漏敲会断连击。"
     },
     en: {
       "horde-survival": "Drag to move and dodge; you auto-fire. Pick one upgrade on level-up. Survive.",
@@ -69,7 +70,8 @@
       "tile-match": "Tap top tiles into the tray; three of a kind clears; 7 in the tray and you lose.",
       "brick-breaker": "Move the paddle to bounce the ball and break every brick.",
       "flappy-gap": "Tap to fly up through the pipe gaps without crashing.",
-      "merge-defense": "Tap empty tiles to place a unit (costs coins); drag two same-level units together to merge and upgrade; stop enemies before they reach the bottom."
+      "merge-defense": "Tap empty tiles to place a unit (costs coins); drag two same-level units together to merge and upgrade; stop enemies before they reach the bottom.",
+      "rhythm-whack": "Moles pop up on the beat — tap to bonk them; bonk on the beat for more points, miss and the combo breaks."
     }
   };
 
@@ -162,29 +164,17 @@
     show(distinctList[0], theme);
   }
 
-  // "Switch genre": same theme, next distinct play kit.
-  function switchGenre() {
-    var theme = lastTheme || themeInput.value.trim();
-    if (!theme) { themeInput.focus(); return; }
-    if (distinctTheme !== theme || !distinctList.length) {
-      distinctList = rankDistinct(theme); distinctTheme = theme; distinctIdx = 0;
-    } else {
-      distinctIdx = (distinctIdx + 1) % distinctList.length;
-    }
-    show(distinctList[distinctIdx], theme);
+  // "Another": jump to a fresh random theme + game (so the name changes every time).
+  function anotherGame() {
+    var pool = I18N[lang].chips;
+    var pick = lastTheme, tries = 0;
+    while (pick === lastTheme && tries < 12) { pick = pool[Math.floor(Math.random() * pool.length)]; tries++; }
+    themeInput.value = pick;
+    generate(pick);
   }
 
   form.addEventListener("submit", function (e) { e.preventDefault(); generate(themeInput.value); });
-  $("again").addEventListener("click", switchGenre);
-
-  $("random").addEventListener("click", function () {
-    var prevKit = lastKit;
-    var pool = I18N[lang].chips;
-    var pick = pool[Math.floor(Math.random() * pool.length)];
-    themeInput.value = pick;
-    generate(pick);
-    if (lastKit === prevKit && distinctList.length > 1) switchGenre(); // avoid repeating previous genre
-  });
+  $("again").addEventListener("click", anotherGame);
 
   $("fullscreen").addEventListener("click", function () {
     var el = frame;
