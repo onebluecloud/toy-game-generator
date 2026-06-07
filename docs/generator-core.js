@@ -221,9 +221,50 @@
     return { ...base, duration, speed: round(base.speed * runnerBoost) };
   }
 
+  // Title patterns give each game a real "game name" feel and vary across kits.
+  // EN patterns MUST start with "{t}" so theme-prefix checks keep holding.
+  const TITLE_PATTERNS = {
+    en: {
+      "horde-survival": ["{t} Rush", "{t} Survivors", "{t} Onslaught"],
+      "runner-lane": ["{t} Racer", "{t} Rush Hour", "{t} Overdrive"],
+      "case-deduction": ["{t} Case Files", "{t} Mystery", "{t} Cold Case"],
+      "tower-defense": ["{t} Defense", "{t} Siege", "{t} Last Stand"],
+      "deck-builder": ["{t} Decks", "{t} Card Battle", "{t} Showdown"],
+      "match-puzzle": ["{t} Match", "{t} Crush", "{t} Combo"],
+      "physics-arc": ["{t} Slingshot", "{t} Arc", "{t} Trick Shot"],
+      "rhythm-tap": ["{t} Beat", "{t} Rhythm", "{t} Tap Tap"],
+      "platform-climb": ["{t} Climb", "{t} Jumper", "{t} Ascent"],
+      "idle-automation": ["{t} Tycoon", "{t} Factory", "{t} Idle"],
+      "grid-tactics": ["{t} Tactics", "{t} Containment", "{t} Grid"],
+      "merge-drop": ["{t} Merge", "{t} 2048", "{t} Fusion"],
+      "tile-match": ["{t} Triple", "{t} Tiles", "{t} Match 3"],
+      "brick-breaker": ["{t} Breaker", "{t} Bricks", "{t} Smash"],
+      "flappy-gap": ["{t} Flap", "{t} Wings", "{t} Sky Dash"]
+    },
+    zh: {
+      "horde-survival": ["{t}大作战", "{t}突围战", "勇闯{t}"],
+      "runner-lane": ["{t}飙车", "极速{t}", "{t}狂飙"],
+      "case-deduction": ["{t}疑案", "{t}推理社", "{t}悬案"],
+      "tower-defense": ["{t}保卫战", "死守{t}", "{t}塔防"],
+      "deck-builder": ["{t}牌局", "{t}卡牌对决", "{t}牌战"],
+      "match-puzzle": ["{t}消消乐", "开心{t}", "{t}连消"],
+      "physics-arc": ["{t}弹弓", "{t}弹射", "百发百中{t}"],
+      "rhythm-tap": ["{t}音游", "跟着{t}打拍", "{t}节奏"],
+      "platform-climb": ["{t}跳跳乐", "勇攀{t}", "{t}爬塔"],
+      "idle-automation": ["{t}大亨", "{t}工厂", "{t}养成记"],
+      "grid-tactics": ["{t}围堵战", "包围{t}", "{t}棋局"],
+      "merge-drop": ["合成{t}", "{t}消消大", "{t}合体"],
+      "tile-match": ["{t}叠叠消", "{t}三消", "消消{t}"],
+      "brick-breaker": ["{t}打砖块", "敲碎{t}", "{t}弹球"],
+      "flappy-gap": ["{t}一键飞", "飞跃{t}", "{t}冲刺"]
+    }
+  };
   function titleFor(theme, candidate, lang) {
-    const suffix = titleSuffixFor(candidate.playKit.id, lang);
-    return titlePrefix(theme) + " " + suffix;
+    const t = titlePrefix(theme);
+    const table = TITLE_PATTERNS[lang === "zh" ? "zh" : "en"];
+    const pats = table[candidate.playKit.id] || [lang === "zh" ? "{t} " + titleSuffixFor(candidate.playKit.id, lang) : "{t} " + titleSuffixFor(candidate.playKit.id, lang)];
+    const idx = hashNumber(theme + "|" + candidate.playKit.id) % pats.length;
+    return pats[idx].replace("{t}", t);
   }
 
   function titleSuffixFor(playKitId, lang) {

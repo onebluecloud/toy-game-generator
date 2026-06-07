@@ -34,6 +34,43 @@
     }
   };
 
+  var HOWTO = {
+    zh: {
+      "horde-survival": "手指拖动走位躲怪，会自动开火；升级时三选一变强，活到时间结束。",
+      "runner-lane": "手指左右控制赛车，躲对手车、吃金币和氮气，贴身超车有连击加分。",
+      "case-deduction": "把左侧证据拖进中间档案，再点右侧最可能的解读；信任耗尽前判对得分。",
+      "tower-defense": "点路上的空位放炮塔（再点可升级），拦住一波波敌人别让它们冲过终点。",
+      "deck-builder": "点卡牌出牌：攻击削减对方压力、护盾挡伤、能量回能；点上方空白处结束回合。",
+      "match-puzzle": "点相邻同色 2 个以上的方块成片消除，越大片分越高，限时刷分。",
+      "physics-arc": "从发射器往后拖再松手，按预览弧线把球打中目标，子弹数量有限。",
+      "rhythm-tap": "音符落到下方判定线时，点它所在的轨道，越准分越高，别漏拍。",
+      "platform-climb": "手指左右移动，点击屏幕跳跃，踩着平台往上爬，别踩红色危险块、别掉下去。",
+      "idle-automation": "点工作站升级提升产能；变红是瓶颈，点它清理恢复生产；攒现金滚雪球。",
+      "grid-tactics": "每点一下走一格或封一格，把不断逼近的敌人围堵住，别让它们碰到你。",
+      "merge-drop": "点某一列把数字块落下，相同数字叠在一起会合并翻倍，尽量合出更大的数。",
+      "tile-match": "点最上层的牌收进底部卡槽，凑齐 3 张相同自动消除；卡槽放满 7 个就输。",
+      "brick-breaker": "手指左右移动挡板接住球，把上方砖块全部打碎，别让球掉下去。",
+      "flappy-gap": "不停点击让它往上飞，穿过一个个管道缝隙，碰到管道或落地就结束。"
+    },
+    en: {
+      "horde-survival": "Drag to move and dodge; you auto-fire. Pick one upgrade on level-up. Survive.",
+      "runner-lane": "Steer left/right, dodge rival cars, grab coins & nitro; near-miss for combo.",
+      "case-deduction": "Drag clues into the ledger, then pick the likeliest reading before trust runs out.",
+      "tower-defense": "Tap empty nodes to build towers (tap again to upgrade); stop every wave.",
+      "deck-builder": "Tap cards to play (attack / shield / energy); tap the top to end the turn.",
+      "match-puzzle": "Tap groups of 2+ same-color tiles to clear; bigger groups score more.",
+      "physics-arc": "Drag back from the launcher and release to arc the ball into targets.",
+      "rhythm-tap": "Tap the note's lane as it reaches the line. Stay on beat, don't miss.",
+      "platform-climb": "Move with your finger, tap to jump; climb up, avoid red blocks and gaps.",
+      "idle-automation": "Tap stations to upgrade; tap red bottlenecks to clear; snowball your cash.",
+      "grid-tactics": "Each tap moves or seals one tile; contain the closing enemies.",
+      "merge-drop": "Tap a column to drop a number; equal numbers stack and merge, doubling up.",
+      "tile-match": "Tap top tiles into the tray; three of a kind clears; 7 in the tray and you lose.",
+      "brick-breaker": "Move the paddle to bounce the ball and break every brick.",
+      "flappy-gap": "Tap to fly up through the pipe gaps without crashing."
+    }
+  };
+
   var lang = "zh";
   var lastTheme = "", lastKit = "", lastHtml = "", lastSpec = null;
   var distinctList = [], distinctIdx = 0, distinctTheme = "";
@@ -85,6 +122,7 @@
     lastHtml = html; lastSpec = spec; lastKit = candidate.playKit.id; lastTheme = theme;
     gameTitle.textContent = spec.title;
     gameKit.textContent = spec.playKit;
+    $("howto").textContent = (HOWTO[lang] && HOWTO[lang][candidate.playKit.id]) || "";
     frame.srcdoc = html;
     result.hidden = false;
     try { history.replaceState(null, "", gameHash(theme, lastKit, lang)); } catch (e) {}

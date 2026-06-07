@@ -36,7 +36,7 @@ ENEMY_SET: {{ENEMY_SET}}
   let timeLeft = SPEC.duration, spawnTimer = 0, fireTimer = 0, combo = 0, comboTimer = 0;
   let upgradeChoices = [], cardRects = [], shake = 0, flash = 0, toast = "", toastTime = 0;
   const pointer = { x: 0, y: 0, moved: false };
-  const player = { x: 0, y: 0, tx: 0, ty: 0, r: 27, hp: 5, maxHp: 5, level: 1, xp: 0, xpGoal: 8, invuln: 0, speed: 350, shots: 1, fireDelay: 0.38, magnet: 100 };
+  const player = { x: 0, y: 0, tx: 0, ty: 0, r: 27, hp: 6, maxHp: 6, level: 1, xp: 0, xpGoal: 8, invuln: 0, speed: 385, shots: 1, fireDelay: 0.38, magnet: 100 };
   const enemies = [], bullets = [], xp = [], particles = [], floats = [];
   const palette = SPEC.palette;
   const enemyTypes = SPEC.enemyTypes;
@@ -62,9 +62,9 @@ ENEMY_SET: {{ENEMY_SET}}
   function reset() {
     state = STATE_PLAYING; score = 0; timeLeft = SPEC.duration; spawnTimer = 0.2; fireTimer = 0.1; combo = 0; comboTimer = 0; toast = "";
     enemies.length = bullets.length = xp.length = particles.length = floats.length = 0;
-    Object.assign(player, { x: width / 2, y: height / 2, tx: pointer.moved ? pointer.x : width / 2, ty: pointer.moved ? pointer.y : height / 2, hp: 5, maxHp: 5, level: 1, xp: 0, xpGoal: 8, invuln: 0, speed: 350, shots: 1, fireDelay: 0.38, magnet: 100 });
+    Object.assign(player, { x: width / 2, y: height / 2, tx: pointer.moved ? pointer.x : width / 2, ty: pointer.moved ? pointer.y : height / 2, hp: 6, maxHp: 6, level: 1, xp: 0, xpGoal: 8, invuln: 0, speed: 385, shots: 1, fireDelay: 0.38, magnet: 100 });
     for (const key of Object.keys(upgradeLevels)) upgradeLevels[key] = 0;
-    for (let i = 0; i < 9; i++) spawnEnemy(true);
+    for (let i = 0; i < 5; i++) spawnEnemy(true);
   }
 
   function pointerDown(e) {
@@ -84,9 +84,9 @@ ENEMY_SET: {{ENEMY_SET}}
     const def = enemyDef(type);
     const side = Math.floor(Math.random() * 4), m = 64; let x = 0, y = 0;
     if (side === 0) { x = Math.random() * width; y = -m; } else if (side === 1) { x = width + m; y = Math.random() * height; } else if (side === 2) { x = Math.random() * width; y = height + m; } else { x = -m; y = Math.random() * height; }
-    if (opening) { const a = Math.random() * Math.PI * 2, d = 230 + Math.random() * 160; x = player.x + Math.cos(a) * d; y = player.y + Math.sin(a) * d; }
+    if (opening) { const a = Math.random() * Math.PI * 2, d = 340 + Math.random() * 200; x = player.x + Math.cos(a) * d; y = player.y + Math.sin(a) * d; }
     const elapsed = SPEC.duration - timeLeft, scale = 1 + elapsed / 80;
-    enemies.push({ x, y, r: def.r, hp: Math.ceil(def.hp * scale * SPEC.tuning.spawnRate), maxHp: Math.ceil(def.hp * scale), speed: def.speed * SPEC.tuning.speed + elapsed * 1.4, type, hit: 0, wind: 0, dash: 0, vx: 0, vy: 0 });
+    enemies.push({ x, y, r: def.r, hp: Math.ceil(def.hp * scale * SPEC.tuning.spawnRate), maxHp: Math.ceil(def.hp * scale), speed: def.speed * SPEC.tuning.speed + elapsed * 0.95, type, hit: 0, wind: 0, dash: 0, vx: 0, vy: 0 });
   }
   function enemyDef(type) {
     const defs = {
@@ -110,7 +110,7 @@ ENEMY_SET: {{ENEMY_SET}}
     timeLeft -= dt; if (timeLeft <= 0 || player.hp <= 0) return end();
     movePlayer(dt); player.invuln = Math.max(0, player.invuln - dt); comboTimer = Math.max(0, comboTimer - dt); if (!comboTimer) combo = 0;
     shake = Math.max(0, shake - dt * 3); flash = Math.max(0, flash - dt * 3); toastTime = Math.max(0, toastTime - dt);
-    spawnTimer -= dt; if (spawnTimer <= 0) { const count = timeLeft < SPEC.duration * 0.35 ? 3 : timeLeft < SPEC.duration * 0.65 ? 2 : 1; for (let i = 0; i < count; i++) spawnEnemy(false); spawnTimer = Math.max(0.12, 0.58 - (SPEC.duration - timeLeft) * 0.008) / SPEC.tuning.spawnRate; }
+    spawnTimer -= dt; if (spawnTimer <= 0) { const count = timeLeft < SPEC.duration * 0.28 ? 3 : timeLeft < SPEC.duration * 0.6 ? 2 : 1; for (let i = 0; i < count; i++) spawnEnemy(false); spawnTimer = Math.max(0.2, 0.82 - (SPEC.duration - timeLeft) * 0.006) / SPEC.tuning.spawnRate; }
     fireTimer -= dt; if (fireTimer <= 0) { fire(); fireTimer = player.fireDelay; }
     updateEnemies(dt); updateBullets(dt); updateXp(dt); updateEffects(dt);
   }
