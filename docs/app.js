@@ -16,9 +16,9 @@
       fullscreen: "⛶ 全屏试玩", download: "⬇ 下载 HTML", again: "↻ 换个玩法",
       copyLink: "🔗 复制链接", copied: "✓ 链接已复制",
       playHint: "手机端直接在上方触屏游玩；「换个玩法」会切到完全不同的游戏类型。",
-      what: "它是什么：不是「AI 现写代码」，而是 15 套手工打磨的玩法模板 + 你的主题词，从 12096 个组合里挑最契合的一个，换皮换文案换节奏。玩法本体是验证过「能玩」的代码。",
+      what: "它是什么：不是「AI 现写代码」，而是 16 套手工打磨的玩法模板 + 你的主题词，从 12960 个组合里挑最契合的一个，换皮换文案换节奏。玩法本体是验证过「能玩」的代码。",
       placeholder: "输入任意词，比如：深海考古",
-      chips: ["合成大西瓜", "羊了个羊", "打砖块", "flappy 一键飞", "电脑病毒", "赛车", "末日塔防", "算命", "音乐节奏", "宝石消除", "弹射救援", "商业谈判", "爬塔跳跃"]
+      chips: ["合成塔防", "合成大西瓜", "羊了个羊", "打砖块", "flappy 一键飞", "电脑病毒", "赛车", "末日塔防", "算命", "音乐节奏", "宝石消除", "弹射救援", "商业谈判"]
     },
     en: {
       h1: "Type a word,<br>get a playable game in seconds",
@@ -28,9 +28,9 @@
       fullscreen: "⛶ Fullscreen", download: "⬇ Download HTML", again: "↻ Switch genre",
       copyLink: "🔗 Copy link", copied: "✓ Link copied",
       playHint: "Play right above by touch; \"Switch genre\" jumps to a completely different game type.",
-      what: "What it is: not \"AI writes code\" — it's 15 hand-built play templates + your theme, picking the best fit out of 12096 combos and reskinning title, copy, and pacing. The gameplay itself is validated, playable code.",
+      what: "What it is: not \"AI writes code\" — it's 16 hand-built play templates + your theme, picking the best fit out of 12960 combos and reskinning title, copy, and pacing. The gameplay itself is validated, playable code.",
       placeholder: "Type anything, e.g. deep-sea archaeology",
-      chips: ["watermelon merge", "sheep stack", "brick breaker", "flappy bird", "computer virus", "street racing", "tower defense", "fortune telling", "music rhythm", "gem match", "slingshot rescue", "business negotiation", "platform climb"]
+      chips: ["merge defense", "watermelon merge", "sheep stack", "brick breaker", "flappy bird", "computer virus", "street racing", "tower defense", "fortune telling", "music rhythm", "gem match", "slingshot rescue", "business negotiation"]
     }
   };
 
@@ -50,7 +50,8 @@
       "merge-drop": "点某一列把数字块落下，相同数字叠在一起会合并翻倍，尽量合出更大的数。",
       "tile-match": "点最上层的牌收进底部卡槽，凑齐 3 张相同自动消除；卡槽放满 7 个就输。",
       "brick-breaker": "手指左右移动挡板接住球，把上方砖块全部打碎，别让球掉下去。",
-      "flappy-gap": "不停点击让它往上飞，穿过一个个管道缝隙，碰到管道或落地就结束。"
+      "flappy-gap": "不停点击让它往上飞，穿过一个个管道缝隙，碰到管道或落地就结束。",
+      "merge-defense": "点空格子花金币放炮台；把两个同等级炮台拖到一起合并升级，越高级越强；别让怪冲到底线。"
     },
     en: {
       "horde-survival": "Drag to move and dodge; you auto-fire. Pick one upgrade on level-up. Survive.",
@@ -67,7 +68,8 @@
       "merge-drop": "Tap a column to drop a number; equal numbers stack and merge, doubling up.",
       "tile-match": "Tap top tiles into the tray; three of a kind clears; 7 in the tray and you lose.",
       "brick-breaker": "Move the paddle to bounce the ball and break every brick.",
-      "flappy-gap": "Tap to fly up through the pipe gaps without crashing."
+      "flappy-gap": "Tap to fly up through the pipe gaps without crashing.",
+      "merge-defense": "Tap empty tiles to place a unit (costs coins); drag two same-level units together to merge and upgrade; stop enemies before they reach the bottom."
     }
   };
 

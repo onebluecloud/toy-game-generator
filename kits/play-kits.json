@@ -133,5 +133,14 @@
     "template": "flappy-gap.html",
     "requiredMechanics": ["tap-flap"],
     "baseScore": 10
+  },
+  {
+    "id": "merge-defense",
+    "label": "Merge Defense",
+    "verbs": ["place unit", "merge units", "defend lanes", "survive waves"],
+    "bestFor": ["merge defense", "merge td", "合成塔防", "合成防御", "合成守护"],
+    "template": "merge-defense.html",
+    "requiredMechanics": ["merge-grow", "tower-placement"],
+    "baseScore": 11
   }
 ]
